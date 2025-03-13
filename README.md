@@ -56,7 +56,7 @@ The project includes the following scripts in `package.json`:
 
 ## 🎯 Project Goal
 
-**BB Burger Blog** is a fitness center promoting a healthy lifestyle through articles on sports, nutrition, and well-being.
+**BB Burger Fitness** is a dynamic gym that combines performance and well-being. This project aims to provide an interactive blog for the BB Burger Fitness community, where members can find tips on training, recovery, and nutrition, as well as stay updated on the gym’s latest news.
 
 ## 🤝 Contributions
 
