@@ -1,0 +1,58 @@
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["mongodb"]
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+/// 🎭 **Utilisateur avec SSO & Profil détaillé**
+model User {
+  id        String    @id @default(auto()) @map("_id") @db.ObjectId
+  username  String    @unique
+  email     String    @unique
+  password  String? // Nullable pour SSO
+  role      Role      @default(USER) // Enum : User, Auteur, Admin
+  profile   Json // Remplace `Profile`
+  social    Json // Remplace `Social`
+  sso       Json? // Remplace `SSO`
+  createdAt DateTime  @default(now())
+  updatedAt DateTime
+  deletedAt DateTime?
+}
+
+/// 📑 **Article avec Commentaires intégrés**
+model Article {
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  title       String
+  slug        String    @unique
+  shortDesc   String
+  content     String
+  authorId    String    @db.ObjectId
+  tags        String[]
+  isPublished Boolean
+  publishedAt DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime
+  seoTitle    String?
+  seoDesc     String?
+  comments    Json // Remplace `Comment[]`
+}
+
+/// 📊 **Statistiques de l'Article**
+model Stats {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  views     Int
+  likes     Int
+  comments  Int
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+}
+
+enum Role {
+  USER
+  AUTHOR
+  ADMIN
+}
