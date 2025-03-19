@@ -1,6 +1,5 @@
 generator client {
   provider        = "prisma-client-js"
-  previewFeatures = ["mongodb"]
 }
 
 datasource db {
@@ -15,11 +14,13 @@ model User {
   email     String    @unique
   password  String? // Nullable pour SSO
   role      Role      @default(USER) // Enum : User, Auteur, Admin
-  profile   Json // Remplace `Profile`
-  social    Json // Remplace `Social`
+  profile   Json? // Remplace `Profile`
+  social    Json? // Remplace `Social`
   sso       Json? // Remplace `SSO`
+  first_name String
+  last_name String
   createdAt DateTime  @default(now())
-  updatedAt DateTime
+  updatedAt DateTime @default(now())
   deletedAt DateTime?
 }
 

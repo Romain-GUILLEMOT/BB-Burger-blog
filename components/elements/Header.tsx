@@ -1,7 +1,7 @@
 "use client";
 import React from 'react';
 import { Disclosure } from '@headlessui/react';
-import { Bars3Icon, XMarkIcon } from "@heroicons/react/24/solid";
+import {Bars3Icon, UserCircleIcon, XMarkIcon} from "@heroicons/react/24/solid";
 
 export default function Header() {
     return (
@@ -25,14 +25,10 @@ export default function Header() {
                             {/* Connexion / Inscription */}
                             <div className="hidden md:flex">
                                 <a
-                                    href="/connexion"
+                                    href="/auth/login"
                                     className="flex items-center space-x-2 text-white hover:text-yellow-400 font-medium transition-colors duration-200"
                                 >
-                                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none"
-                                         viewBox="0 0 24 24" stroke="currentColor">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2"
-                                              d="M5.121 17.804A7 7 0 0112 5a7 7 0 016.879 12.804M12 19v-6m0 0l-3 3m3-3l3 3"/>
-                                    </svg>
+                                   <UserCircleIcon className={"h-6 w-6"}/>
                                     <span>Connexion / Inscription</span>
                                 </a>
                             </div>
@@ -63,7 +59,7 @@ export default function Header() {
                             <a href="/a-propos" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-green-600 transition-colors duration-200">
                                 À propos
                             </a>
-                            <a href="/connexion" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-green-600 transition-colors duration-200">
+                            <a href="/auth/login" className="block px-3 py-2 rounded-md text-base font-medium text-white hover:bg-green-600 transition-colors duration-200">
                                 Connexion / Inscription
                             </a>
                         </div>

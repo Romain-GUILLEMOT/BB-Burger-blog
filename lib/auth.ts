@@ -1,12 +1,13 @@
-import NextAuth, { NextAuthOptions } from "next-auth";
+// lib/auth.ts
+import { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import GitHubProvider from "next-auth/providers/github";
 import CredentialsProvider from "next-auth/providers/credentials";
-import { PrismaAdapter } from "@auth/prisma-adapter";
+import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { generateAuthenticationOptions, verifyAuthenticationResponse } from "@passwordless-id/webauthn";
+import { verifyAuthenticationResponse } from "@passwordless-id/webauthn";
 
 // Initialise Prisma
 const prisma = new PrismaClient();
@@ -16,21 +17,18 @@ export const authOptions: NextAuthOptions = {
     adapter: PrismaAdapter(prisma),
     session: { strategy: "jwt" },
     secret: process.env.NEXTAUTH_SECRET,
-
     providers: [
-        // ✅ Google OAuth
+        // Google OAuth
         GoogleProvider({
             clientId: process.env.GOOGLE_CLIENT_ID!,
             clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
         }),
-
-        // ✅ GitHub OAuth
+        // GitHub OAuth
         GitHubProvider({
             clientId: process.env.GITHUB_CLIENT_ID!,
             clientSecret: process.env.GITHUB_CLIENT_SECRET!,
         }),
-
-        // ✅ Credentials (email/password)
+        // Credentials (email/password)
         CredentialsProvider({
             name: "Email & Password",
             credentials: {
@@ -55,8 +53,7 @@ export const authOptions: NextAuthOptions = {
                 return { id: user.id, name: user.username, email: user.email };
             },
         }),
-
-        // ✅ Passkeys (WebAuthn)
+        // Passkeys (WebAuthn)
         CredentialsProvider({
             id: "passkeys",
             name: "Passkeys",
@@ -85,25 +82,20 @@ export const authOptions: NextAuthOptions = {
             },
         }),
     ],
-
     callbacks: {
         // On ajoute l'ID de l'utilisateur au token JWT
         async jwt({ token, user }) {
             if (user) token.id = user.id;
             return token;
         },
-
         // Ajout de l'ID utilisateur dans la session
         async session({ session, token }) {
             if (session.user) session.user.id = token.id;
             return session;
         },
     },
-
     pages: {
         signIn: "/auth/signin",
         error: "/auth/error",
     },
 };
-
-export default NextAuth(authOptions);
