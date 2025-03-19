@@ -1,102 +1,112 @@
 import Image from "next/image";
-import Loading from "@/components/elements/Loading";
 
 export default function Home() {
-  return (
-    <div className="grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20 font-[family-name:var(--font-geist-sans)]">
-      <main className="flex flex-col gap-8 row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="list-inside list-decimal text-sm text-center sm:text-left font-[family-name:var(--font-geist-mono)]">
-          <li className="mb-2">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] px-1 py-0.5 rounded font-semibold">
-              src/app/page.tsx
-            </code>
-            .
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
-   <Loading/>
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:min-w-44"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+    const articles = [
+        {
+            id: 1,
+            image: "/image1.jpg",
+            title: "Titre de l'article 1",
+            description: "Description rapide de l'article 1...",
+            link: "/article/1"
+        },
+        {
+            id: 2,
+            image: "/image2.jpg",
+            title: "Titre de l'article 2",
+            description: "Description rapide de l'article 2...",
+            link: "/article/2"
+        },
+        {
+            id: 3,
+            image: "/image3.jpg",
+            title: "Titre de l'article 3",
+            description: "Description rapide de l'article 3...",
+            link: "/article/3"
+        },
+        {
+            id: 4,
+            image: "/image4.jpg",
+            title: "Titre de l'article 4",
+            description: "Description rapide de l'article 4...",
+            link: "/article/4"
+        },
+        {
+            id: 5,
+            image: "/image5.jpg",
+            title: "Titre de l'article 5",
+            description: "Description rapide de l'article 5...",
+            link: "/article/5"
+        }
+    ];
+
+    return (
+        <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
+            {/* Texte principal */}
+            <h1 className="text-4xl sm:text-6xl font-bold text-center mb-12">
+                Avec <span className="text-green-600">GreenLag</span>, le changement c&apos;est maintenant
+            </h1>
+
+            {/* Section Dernières Nouvelles */}
+            <section className="w-full max-w-6xl text-center">
+                <h2 className="text-3xl font-semibold text-gray-800 mb-8">
+                    Dernières Nouvelles
+                </h2>
+
+                {/* Grilles dynamiques */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
+                    {articles.slice(0, 3).map((article) => (
+                        <div
+                            key={article.id}
+                            className="relative group w-full aspect-square bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300"
+                        >
+                            <Image
+                                src={article.image}
+                                alt={`Image de ${article.title}`}
+                                layout="fill"
+                                objectFit="cover"
+                                className="transition-transform duration-300 group-hover:scale-110"
+                            />
+                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <h3 className="text-lg font-semibold">{article.title}</h3>
+                                <p className="text-sm mb-4">{article.description}</p>
+                                <a
+                                    href={article.link}
+                                    className="inline-block px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition"
+                                >
+                                    Voir plus
+                                </a>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-8">
+                    {articles.slice(3).map((article) => (
+                        <div
+                            key={article.id}
+                            className="relative group w-full aspect-square bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transition-shadow duration-300"
+                        >
+                            <Image
+                                src={article.image}
+                                alt={`Image de ${article.title}`}
+                                layout="fill"
+                                objectFit="cover"
+                                className="transition-transform duration-300 group-hover:scale-110"
+                            />
+                            <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                <h3 className="text-lg font-semibold">{article.title}</h3>
+                                <p className="text-sm mb-4">{article.description}</p>
+                                <a
+                                    href={article.link}
+                                    className="inline-block px-4 py-2 bg-green-600 text-white text-sm font-medium rounded hover:bg-green-700 transition"
+                                >
+                                    Voir plus
+                                </a>
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </section>
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-6 flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
-  );
+    );
 }
