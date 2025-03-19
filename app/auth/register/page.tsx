@@ -8,7 +8,7 @@ import { z } from "zod";
 import { toFormikValidationSchema } from "zod-formik-adapter";
 export default function Register() {
     const [errorMessage, setErrorMessage] = useState("");
-
+    const [formErrors, setFormErrors] = useState<zodErrorsFormat | null>();
     // Validation avec Yup
     const validationSchema = z
         .object({
@@ -39,11 +39,14 @@ export default function Register() {
             first_name: "",
             last_name: "",
         },
+        validateOnChange: false,
+        validateOnBlur: false,
         validationSchema: toFormikValidationSchema(validationSchema),
         validate: (values) => {
             try {
                 validationSchema.parse(values);
             } catch (error) {
+                console.log(error)
                 return error.formErrors.fieldErrors;
             }
         },

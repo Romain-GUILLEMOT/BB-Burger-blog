@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 
 const prisma = new PrismaClient({
-    log: process.env.DEBUG === "true" ? ["query", "info", "warn", "error"] : ["warn", "error"],
+    log: process.env.DEBUG !== "false" ? ["query", "info", "warn", "error"] : ["warn", "error"],
 });
 
 const registerSchema = z.object({
@@ -30,7 +30,7 @@ export async function POST(req: NextRequest) {
         const hashedPassword = await bcrypt.hash(password, 10);
 
         // Création de l'utilisateur
-        if(process.env.DEBUG === "true") {
+        if(process.env.DEBUG !== "false") {
             console.log({
                 email,
                 password: hashedPassword,
@@ -65,7 +65,7 @@ export async function POST(req: NextRequest) {
     } catch (error) {
         let data: APIResponse = { status: "error", message: 'Erreur lors de l\'inscription' };
 
-        if (process.env.DEBUG === "true") {
+        if (process.env.DEBUG !== "false") {
 
             console.log("🔍 Erreur Prisma :", error);
 

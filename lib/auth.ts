@@ -7,7 +7,7 @@ import { PrismaAdapter } from "@next-auth/prisma-adapter";
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import { z } from "zod";
-import { verifyAuthenticationResponse } from "@passwordless-id/webauthn";
+import verifyAuthenticationResponse from "@passwordless-id/webauthn";
 
 // Initialise Prisma
 const prisma = new PrismaClient();
