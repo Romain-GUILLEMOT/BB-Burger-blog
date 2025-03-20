@@ -11,7 +11,6 @@ import {XCircleIcon} from "@heroicons/react/24/solid";
 export default function Register() {
     const [errorMessage, setErrorMessage] = useState("");
     const [formErrors, setFormErrors] = useState<zodErrorsFormat | null>();
-    // Validation avec Yup
     const [showErrorCross, setShowErrorCross] = useState(false);
     const [isLoaded, setIsLoaded] = useState(false);
 
