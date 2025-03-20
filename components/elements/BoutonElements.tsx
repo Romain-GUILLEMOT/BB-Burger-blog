@@ -24,7 +24,8 @@ interface ButtonProps {
     isLoading?: boolean;
 }
 
-export default function ButtonElement({
+export default function
+({
                                           type = 'neutral',
                                           buttonType = 'button',
                                           size = 'md',
