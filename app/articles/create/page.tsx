@@ -1,23 +1,34 @@
 "use client";
 
-import { useState } from "react";
-import { useRouter } from "next/navigation"; // Utilisation de `useRouter` de `next/navigation`
+import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
+import dynamic from "next/dynamic";
+
+// Chargement dynamique de React Quill pour éviter les problèmes SSR
+const QuillNoSSRWrapper = dynamic(() => import("react-quill"), { ssr: false });
+
+import "react-quill/dist/quill.snow.css"; // Styles de Quill
 
 export default function CreateArticle() {
-    const [title, setTitle] = useState<string>("");
-    const [slug, setSlug] = useState<string>("");
-    const [shortDesc, setShortDesc] = useState<string>("");
-    const [content, setContent] = useState<string>("");
-    const [authorId, setAuthorId] = useState<string>("");
-    const [tags, setTags] = useState<string>("");
-    const [isPublished, setIsPublished] = useState<boolean>(false);
-    const [seoTitle, setSeoTitle] = useState<string>("");
-    const [seoDesc, setSeoDesc] = useState<string>("");
-
-    // Remplacer `useRouter` par la version de `next/navigation`
+    const [title, setTitle] = useState("");
+    const [slug, setSlug] = useState("");
+    const [shortDesc, setShortDesc] = useState("");
+    const [content, setContent] = useState("");
+    const [authorId, setAuthorId] = useState("");
+    const [tags, setTags] = useState("");
+    const [isPublished, setIsPublished] = useState(false);
+    const [seoTitle, setSeoTitle] = useState("");
+    const [seoDesc, setSeoDesc] = useState("");
+    const [isQuillLoaded, setIsQuillLoaded] = useState(false); // Suivi du chargement de Quill
     const router = useRouter();
 
-    const handleSubmit = async (e: React.FormEvent) => {
+    useEffect(() => {
+        if (typeof window !== "undefined") {
+            setIsQuillLoaded(true); // Déclenche le chargement de Quill après le montage côté client
+        }
+    }, []); // Exécution au montage du composant
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
         const res = await fetch("/api/articles", {
             method: "POST",
@@ -28,15 +39,14 @@ export default function CreateArticle() {
                 shortDesc,
                 content,
                 authorId,
-                tags: tags.split(",").map(tag => tag.trim()),
+                tags: tags.split(",").map((tag) => tag.trim()),
                 isPublished,
                 seoTitle,
                 seoDesc,
             }),
         });
         if (res.ok) {
-            // Utilisation de `router.push()` pour la redirection
-            router.push("/"); // Redirige vers la page d'accueil après la soumission
+            router.push("/"); // Redirige après soumission réussie
         }
     };
 
@@ -64,12 +74,17 @@ export default function CreateArticle() {
                     onChange={(e) => setShortDesc(e.target.value)}
                     className="w-full p-2 border rounded bg-green-100 focus:ring-green-500"
                 ></textarea>
-                <textarea
-                    placeholder="Contenu"
-                    value={content}
-                    onChange={(e) => setContent(e.target.value)}
-                    className="w-full p-2 border rounded bg-green-100 focus:ring-green-500"
-                ></textarea>
+
+                {/* Affichage de l'éditeur Quill seulement après son chargement */}
+                {isQuillLoaded && (
+                    <QuillNoSSRWrapper
+                        theme="snow"
+                        value={content}
+                        onChange={setContent}
+                        className="bg-white"
+                    />
+                )}
+
                 <input
                     type="text"
                     placeholder="ID de l'auteur"
