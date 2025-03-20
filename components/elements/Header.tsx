@@ -1,10 +1,12 @@
 "use client";
 import React from 'react';
 import { Disclosure } from '@headlessui/react';
-import {Bars3Icon, UserCircleIcon, XMarkIcon} from "@heroicons/react/24/solid";
+import {Bars3Icon, XMarkIcon} from "@heroicons/react/24/solid";
+import AuthMenu from "@/components/elements/header/AuthMenu";
 
 export default function Header() {
     return (
+
         <Disclosure as="header" className="bg-green-600 shadow-md rounded-b-[50px]">
             {({ open }) => (
                 <>
@@ -22,16 +24,7 @@ export default function Header() {
                                 <a href="/a-propos" className="text-white hover:text-yellow-400 font-medium transition-colors duration-200">À propos</a>
                             </div>
 
-                            {/* Connexion / Inscription */}
-                            <div className="hidden md:flex">
-                                <a
-                                    href="/auth/login"
-                                    className="flex items-center space-x-2 text-white hover:text-yellow-400 font-medium transition-colors duration-200"
-                                >
-                                   <UserCircleIcon className={"h-6 w-6"}/>
-                                    <span>Connexion / Inscription</span>
-                                </a>
-                            </div>
+                          <AuthMenu/>
 
                             {/* Bouton mobile avec coins plus arrondis */}
                             <div className="flex md:hidden">

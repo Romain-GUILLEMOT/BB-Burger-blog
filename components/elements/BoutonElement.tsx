@@ -48,15 +48,15 @@ export default function
                 ? 'text-gray-800 bg-white hover:bg-gray-100 duration-200 transform hover:translate-y-[-2px]'
                 : 'bg-transparent text-gray-700 hover:opacity-80 duration-200 transform hover:translate-y-[-2px]',
         info: disabled
-            ? 'text-white bg-ozlaloc-800 opacity-60'
+            ? 'text-white bg-green-800 opacity-60'
             : blue
-                ? 'text-white bg-ozlaloc-800 hover:opacity-75 duration-200 transform hover:translate-y-[-2px]'
-                : 'bg-ozlaloc-600 text-white hover:bg-ozlaloc-800 duration-200 transform hover:translate-y-[-2px]',
+                ? 'text-white bg-green-800 hover:opacity-75 duration-200 transform hover:translate-y-[-2px]'
+                : 'bg-green-600 text-white hover:bg-green-800 duration-200 transform hover:translate-y-[-2px]',
         info2: disabled
             ? 'text-blue-800 bg-white opacity-60'
             : blue
                 ? 'text-blue-800 bg-white hover:opacity-75 duration-200 transform hover:translate-y-[-2px]'
-                : 'bg-ozlaloc-800 text-white hover:opacity-75 duration-200 transform hover:translate-y-[-2px]',
+                : 'bg-green-800 text-white hover:opacity-75 duration-200 transform hover:translate-y-[-2px]',
         error: disabled
             ? 'text-red-800 bg-white opacity-60'
             : blue
@@ -73,10 +73,10 @@ export default function
                 ? 'text-yellow-800 bg-white hover:bg-yellow-100 duration-200 transform hover:translate-y-[-2px]'
                 : 'bg-yellow-600 text-white hover:bg-yellow-500 duration-200 transform hover:translate-y-[-2px]',
         secondary: disabled
-            ? 'border-2 border-ozlaloc-800 text-black opacity-60 flex items-center justify-center gap-2 group'
+            ? 'border-2 border-green-800 text-black opacity-60 flex items-center justify-center gap-2 group'
             : blue
-                ? 'border-2 border-ozlaloc-800 text-black transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-md flex items-center justify-center gap-2 group'
-                : 'border-2 border-ozlaloc-800 text-ozlaloc-600 hover:bg-ozlaloc-800 transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-md flex items-center justify-center gap-2 group',
+                ? 'border-2 border-green-800 text-black transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-md flex items-center justify-center gap-2 group'
+                : 'border-2 border-green-800 text-green-600 hover:bg-green-800 transition-all duration-300 transform hover:translate-y-[-2px] hover:shadow-md flex items-center justify-center gap-2 group',
     };
 
     const sizeClasses = {
