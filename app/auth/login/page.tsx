@@ -1,63 +1,189 @@
+"use client";
+
+import { useFormik } from "formik";
+import { signIn } from "next-auth/react";
+import { useState, useEffect } from "react";
+import { XCircleIcon } from "@heroicons/react/24/solid";
+import Loading from "@/components/elements/Loading";
+
 export default function Login() {
+    const [errorMessage, setErrorMessage] = useState("");
+    const [isLoaded, setIsLoaded] = useState(false);
+    const [imgsrc, setLogosrc] = useState<string>("https://assets.romain-guillemot.dev/greenlaglogolong.webp");
+    const [videosrc, setVideosrc] = useState<string>("https://assets.romain-guillemot.dev/bgvideogreenlag.mp4");
+    const [showErrorCross, setShowErrorCross] = useState(false);
+    const doom = new Audio("https://assets.romain-guillemot.dev/doom.mp3");
+    const buzz = new Audio("https://assets.romain-guillemot.dev/buzz.mp3");
+    const success = new Audio("https://assets.romain-guillemot.dev/success.mp3");
+
+    const formik = useFormik({
+        initialValues: {
+            email: "",
+            password: "",
+        },
+        validateOnChange: false,
+        validateOnBlur: false,
+        onSubmit: async (values) => {
+            setErrorMessage("");
+            try {
+                const signInResponse = await signIn("credentials", {
+                    redirect: false,
+                    email: values.email,
+                    password: values.password,
+                });
+
+
+                if (signInResponse?.error) {
+
+                    buzz.play();
+
+                    setTimeout(() => {
+                        setShowErrorCross(true);
+                    }, 1000);
+
+                    setTimeout(() => {
+                        setShowErrorCross(false);
+                        setVideosrc("https://assets.romain-guillemot.dev/fire.mp4");
+                        setLogosrc("https://assets.romain-guillemot.dev/redlaglogolong.webp");
+                        setErrorMessage("Identifiants incorrects.");
+                        doom.play();
+                    }, 2500);
+                } else {
+                    setErrorMessage("");
+                    setLogosrc("https://assets.romain-guillemot.dev/greenlaglogolong.webp");
+
+                    buzz.pause()
+                    doom.pause()
+                    success.play();
+
+
+                    setTimeout(() => {
+                        success.pause()
+                        window.location.href = "/dashboard";
+                    }, 1500 );
+                }
+            } catch (error) {
+                buzz.play();
+
+                setTimeout(() => {
+                    setShowErrorCross(true);
+                }, 1000);
+
+                setTimeout(() => {
+                    setShowErrorCross(false);
+                    setVideosrc("https://assets.romain-guillemot.dev/fire.mp4");
+                    setLogosrc("https://assets.romain-guillemot.dev/redlaglogolong.webp");
+
+                    setErrorMessage("Identifiants incorrects.");
+                    doom.play();
+                }, 2500);
+            }
+        }
+    });
+
+    useEffect(() => {
+
+        let loadedCount = 0;
+        const checkIfLoaded = () => {
+            loadedCount++;
+            if (loadedCount === 3) {
+                setIsLoaded(true); // Tous les sons sont chargés, on affiche la page
+            }
+        };
+
+        doom.addEventListener("canplaythrough", checkIfLoaded, { once: true });
+        buzz.addEventListener("canplaythrough", checkIfLoaded, { once: true });
+        success.addEventListener("canplaythrough", checkIfLoaded, { once: true });
+
+        doom.load();
+        buzz.load();
+        success.load();
+        return () => {
+            doom.removeEventListener("canplaythrough", checkIfLoaded);
+            buzz.removeEventListener("canplaythrough", checkIfLoaded);
+            success.removeEventListener("canplaythrough", checkIfLoaded);
+        };
+    }, []);
+    if (!isLoaded) {
+        return (
+            <Loading/>
+        );
+    }
     return (
         <>
-            <div className="flex min-h-screen">
+            {showErrorCross && (
+                <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
+                    <XCircleIcon className="w-64 h-64 text-red-600 animate-bounce animate-shake" />
+                </div>
+            )}
+            <div className={`flex min-h-screen ${errorMessage ? "bg-red-900" : "bg-white"}`}>
                 {/* Formulaire de connexion */}
+
                 <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-                    <div className="mx-auto w-full max-w-sm lg:w-96 p-12 bg-white shadow-lg rounded-lg">
+                    <div className={`mx-auto w-full max-w-sm lg:w-96 p-12   ${errorMessage ? 'animate-shake bg-red-100 border-red-500' : 'bg-slate-100 border-slate-200'} shadow-lg rounded-lg`}>
                         <div>
                             <img
                                 alt="Votre Entreprise"
-                                src="https://assets.romain-guillemot.dev/greenlaglogolong.webp"
+                                key={imgsrc}
+                                src={imgsrc}
                                 className="h-1/4 w-auto my-0 mx-auto margin-top-0" // Ajustement de la taille du logo et marges pour le placer bien en haut
                             />
                             <h2 className="mt-8 text-2xl font-bold tracking-tight text-gray-900">Connectez-vous</h2>
                             <p className="mt-2 text-sm text-gray-500">
                                 Pas encore membre ?{' '}
-                                <a href="/auth/register" className="font-semibold text-green-700 hover:text-green-900">
-                                    Créez votre compte
+                                <a href="/auth/register" className={`font-semibold ${(errorMessage) ? 'text-red-700 hover:text-red-900 ' : 'text-green-700 hover:text-green-900 '}`}>
+
+                                Créez votre compte
                                 </a>
                             </p>
                         </div>
 
                         <div className="mt-10">
-                            <form action="#" method="POST" className="space-y-6">
+                            <form onSubmit={formik.handleSubmit} className="space-y-6">
                                 <div>
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-900">
-                                        Adresse e-mail
-                                    </label>
+                                    <label htmlFor="email" className="block text-sm font-medium text-gray-900">Adresse e-mail</label>
                                     <div className="mt-2">
                                         <input
                                             id="email"
                                             name="email"
                                             type="email"
+                                            value={formik.values.email}
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
                                             required
-                                            autoComplete="email"
-                                            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:outline-green-600 sm:text-sm"
+                                            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1"
                                         />
                                     </div>
                                 </div>
 
                                 <div>
-                                    <label htmlFor="password" className="block text-sm font-medium text-gray-900">
-                                        Mot de passe
-                                    </label>
+                                    <label htmlFor="password" className="block text-sm font-medium text-gray-900">Mot de passe</label>
                                     <div className="mt-2">
                                         <input
                                             id="password"
                                             name="password"
                                             type="password"
+                                            value={formik.values.password}
+                                            onChange={formik.handleChange}
+                                            onBlur={formik.handleBlur}
                                             required
-                                            autoComplete="current-password"
-                                            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1 outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline focus:outline-2 focus:outline-green-600 sm:text-sm"
+                                            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1"
                                         />
                                     </div>
                                 </div>
 
+                                {errorMessage && (
+                                    <p className="text-white bg-red-600 p-2 rounded-md text-sm text-center mt-2">
+                                        {errorMessage}
+                                    </p>
+                                )}
+
                                 <div>
                                     <button
                                         type="submit"
-                                        className="flex w-full justify-center rounded-md bg-green-800 px-3 py-1.5 text-sm font-semibold text-white shadow-sm hover:bg-green-900 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-600"
+                                        className={`flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold text-white shadow-sm ${
+                                            errorMessage ? "bg-red-700 animate-shake" : "bg-green-800 hover:bg-green-900"
+                                        }`}
                                     >
                                         Se connecter
                                     </button>
@@ -70,7 +196,7 @@ export default function Login() {
                                         <div className="w-full border-t border-gray-200" />
                                     </div>
                                     <div className="relative flex justify-center text-sm font-medium">
-                                        <span className="bg-white px-6 text-gray-900">Ou connectez-vous avec</span>
+                                        <span className={" px-6 text-gray-900"}>Ou connectez-vous avec</span>
                                     </div>
                                 </div>
 
@@ -121,17 +247,8 @@ export default function Login() {
 
                 {/* Vidéo de fond */}
                 <div className="relative hidden w-0 flex-1 lg:block">
-                    <video
-                        autoPlay
-                        loop
-                        muted
-                        playsInline
-                        className="absolute inset-0 w-full h-full object-cover"
-                    >
-                        <source
-                            src="https://assets.romain-guillemot.dev/bgvideogreenlag.mp4"
-                            type="video/mp4"
-                        />
+                    <video key={videosrc} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
+                        <source src={videosrc} type="video/mp4" />
                     </video>
                 </div>
             </div>
