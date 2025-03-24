@@ -23,7 +23,6 @@ export default function ArticleList() {
         <div className="p-6 md:p-10 max-w-6xl mx-auto">
             <h1 className="text-3xl font-bold mb-6 text-green-700 text-center">📰 Articles</h1>
 
-            {/* 🔍 Recherche */}
             <div className="mb-6 flex justify-center">
                 <input
                     type="text"
