@@ -5,7 +5,9 @@ import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Switch } from "@headlessui/react";
 import ButtonElement from "@/components/elements/BoutonElement";
-import parse from 'html-react-parser';
+import parse from "html-react-parser";
+import { useSession } from "next-auth/react"; // Utilisation du hook useSession pour gérer la session
+
 // ===== ACE IMPORTS =====
 import "ace-builds/src-noconflict/ace";
 import "ace-builds/src-noconflict/mode-markdown";
@@ -32,6 +34,7 @@ export default function CreateArticle() {
     const [tags, setTags] = useState("");
     const [seoTitle, setSeoTitle] = useState("");
     const [seoDesc, setSeoDesc] = useState("");
+    const [slug, setSlug] = useState(""); // Nouveau champ slug
 
     // ----- État "Publié" ou "Brouillon" -----
     const [isPublished, setIsPublished] = useState(false);
@@ -47,9 +50,34 @@ export default function CreateArticle() {
         }
     }, []);
 
+    // ----- Fonction pour générer le slug -----
+    const generateSlug = (title: string) => {
+        return title
+            .toLowerCase()
+            .replace(/\s+/g, "-") // Remplacer les espaces par des tirets
+            .replace(/[^\w-]+/g, ""); // Supprimer les caractères non alphanumériques
+    };
+
+    // ----- Mettre à jour le slug chaque fois que le titre change -----
+    useEffect(() => {
+        if (title.trim()) {
+            setSlug(generateSlug(title)); // Mettre à jour le slug quand le titre change
+        }
+    }, [title]);
+
+    // ----- Gestion de la session -----
+    const { data: session } = useSession();
+    const authorId = session?.user?.id;
+
     // ----- Soumission du formulaire -----
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
+
+        // Si l'authorId n'est pas trouvé, on arrête la soumission
+        if (!authorId) {
+            console.error("Aucun utilisateur connecté.");
+            return;
+        }
 
         // Requête POST vers l'API
         const res = await fetch("/api/articles", {
@@ -59,15 +87,20 @@ export default function CreateArticle() {
                 title,
                 shortDesc,
                 content,
-                tags: tags.split(",").map((tag) => tag.trim()),
+                tags,
                 isPublished,
                 seoTitle,
                 seoDesc,
+                slug,
+                authorId, // Utilisation correcte de "authorId"
             }),
         });
 
+        // Vérifier si la soumission a été réussie
         if (res.ok) {
-            router.push("/");
+            router.push("/"); // Redirection vers la page d'accueil après succès
+        } else {
+            console.error("Erreur lors de la soumission de l'article");
         }
     };
 
@@ -76,7 +109,6 @@ export default function CreateArticle() {
     const switchLabel = isPublished ? "Publié" : "Brouillon";
 
     // ----- Contenu HTML sécurisé pour la Preview -----
-
     return (
         <div className="min-h-screen bg-green-50 py-10">
             <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg shadow-2xl">

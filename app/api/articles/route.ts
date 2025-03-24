@@ -35,6 +35,7 @@ export async function POST(req: NextRequest) {
                 seoDesc,
                 createdAt: new Date(),
                 updatedAt: new Date(),
+                comments: {}
             },
         });
 

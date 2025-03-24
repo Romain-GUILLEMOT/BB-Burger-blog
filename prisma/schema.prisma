@@ -1,5 +1,5 @@
 generator client {
-  provider        = "prisma-client-js"
+  provider = "prisma-client-js"
 }
 
 datasource db {
@@ -9,19 +9,19 @@ datasource db {
 
 /// 🎭 **Utilisateur avec SSO & Profil détaillé**
 model User {
-  id        String    @id @default(auto()) @map("_id") @db.ObjectId
-  username  String    @unique
-  email     String    @unique
-  password  String? // Nullable pour SSO
-  role      Role      @default(USER) // Enum : User, Auteur, Admin
-  profile   Json? // Remplace `Profile`
-  social    Json? // Remplace `Social`
-  sso       Json? // Remplace `SSO`
+  id         String    @id @default(auto()) @map("_id") @db.ObjectId
+  username   String    @unique
+  email      String    @unique
+  password   String? // Nullable pour SSO
+  role       Role      @default(USER) // Enum : User, Auteur, Admin
+  profile    Json? // Remplace `Profile`
+  social     Json? // Remplace `Social`
+  sso        Json? // Remplace `SSO`
   first_name String
-  last_name String
-  createdAt DateTime  @default(now())
-  updatedAt DateTime @default(now())
-  deletedAt DateTime?
+  last_name  String
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @default(now())
+  deletedAt  DateTime?
 }
 
 /// 📑 **Article avec Commentaires intégrés**
@@ -39,7 +39,7 @@ model Article {
   updatedAt   DateTime
   seoTitle    String?
   seoDesc     String?
-  comments    Json // Remplace `Comment[]`
+  comments    Json? // Remplace `Comment[]`
 }
 
 /// 📊 **Statistiques de l'Article**
