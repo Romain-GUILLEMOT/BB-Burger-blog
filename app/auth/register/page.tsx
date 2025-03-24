@@ -11,9 +11,8 @@ import {XCircleIcon} from "@heroicons/react/24/solid";
 export default function Register() {
     const [errorMessage, setErrorMessage] = useState("");
     const [formErrors, setFormErrors] = useState<zodErrorsFormat | null>();
-    const [showErrorCross, setShowErrorCross] = useState(false);
+    const [showErrorCross, setShowErrorCross] = useState<boolean>(false);
     const [isLoaded, setIsLoaded] = useState(false);
-
     const doom = new Audio("https://assets.romain-guillemot.dev/doom.mp3");
     const buzz = new Audio("https://assets.romain-guillemot.dev/buzz.mp3");
     const success = new Audio("https://assets.romain-guillemot.dev/success.mp3");
