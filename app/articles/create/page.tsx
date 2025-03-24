@@ -6,12 +6,12 @@ import dynamic from "next/dynamic";
 import { Switch } from "@headlessui/react";
 import ButtonElement from "@/components/elements/BoutonElement";
 import parse from "html-react-parser";
-import { useSession } from "next-auth/react"; // Utilisation du hook useSession pour gérer la session
+import { useSession } from "next-auth/react";
 
 // ===== ACE IMPORTS =====
 import "ace-builds/src-noconflict/ace";
 import "ace-builds/src-noconflict/mode-markdown";
-import "ace-builds/src-noconflict/theme-xcode"; // Thème ACE, remplace si besoin
+import "ace-builds/src-noconflict/theme-xcode";
 
 // ===== Éditeur ACE (chargé dynamiquement) =====
 const AceNoSSRWrapper = dynamic(() => import("react-ace"), {
@@ -30,14 +30,15 @@ export default function CreateArticle() {
     // ----- Champs formulaire -----
     const [title, setTitle] = useState("");
     const [shortDesc, setShortDesc] = useState("");
-    const [content, setContent] = useState(""); // "Description longue"
+    const [content, setContent] = useState("");
     const [tags, setTags] = useState("");
     const [seoTitle, setSeoTitle] = useState("");
     const [seoDesc, setSeoDesc] = useState("");
-    const [slug, setSlug] = useState(""); // Nouveau champ slug
+    const [slug, setSlug] = useState("");
+    const [imageBase64, setImageBase64] = useState("");
 
-    // ----- État "Publié" ou "Brouillon" -----
-    const [isPublished, setIsPublished] = useState(false);
+    // ----- État "Publié" (fixé à true) -----
+    const [isPublished] = useState(true);
 
     // ----- Basculer entre Ace et Quill -----
     const [useAce, setUseAce] = useState(false);
@@ -69,6 +70,24 @@ export default function CreateArticle() {
     const { data: session } = useSession();
     const authorId = session?.user?.id;
 
+    // ----- Convertir l'image en base64 -----
+    const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const file = e.target.files?.[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onloadend = () => {
+                if (reader.result) {
+                    setImageBase64(reader.result as string); // Sauvegarder l'image en base64
+                }
+            };
+            reader.readAsDataURL(file);
+        }
+    };
+
+    // ----- États pour message de succès et d'erreur -----
+    const [message, setMessage] = useState<string | null>(null); // Message de feedback (succès/échec)
+    const [isError, setIsError] = useState(false); // Indicateur d'erreur
+
     // ----- Soumission du formulaire -----
     const handleSubmit = async (e: FormEvent) => {
         e.preventDefault();
@@ -92,23 +111,22 @@ export default function CreateArticle() {
                 seoTitle,
                 seoDesc,
                 slug,
-                authorId, // Utilisation correcte de "authorId"
+                authorId,
+                imageBase64,
             }),
         });
 
         // Vérifier si la soumission a été réussie
         if (res.ok) {
+            setMessage("Article publié avec succès!");
+            setIsError(false); // Réinitialiser l'état d'erreur
             router.push("/"); // Redirection vers la page d'accueil après succès
         } else {
-            console.error("Erreur lors de la soumission de l'article");
+            setMessage("Erreur lors de la soumission de l'article.");
+            setIsError(true); // Indiquer une erreur
         }
     };
 
-    // ----- Gestion de l'affichage du bouton en fonction de l'état -----
-    const buttonText = isPublished ? "Enregistrer le brouillon" : "Publier";
-    const switchLabel = isPublished ? "Publié" : "Brouillon";
-
-    // ----- Contenu HTML sécurisé pour la Preview -----
     return (
         <div className="min-h-screen bg-green-50 py-10">
             <div className="max-w-6xl mx-auto bg-white p-8 rounded-lg shadow-2xl">
@@ -133,10 +151,21 @@ export default function CreateArticle() {
                             />
                         </Switch>
                         <span className="text-sm text-green-800 font-medium">
-              {useAce ? "ACE Editor" : "React Quill"}
-            </span>
+                            {useAce ? "ACE Editor" : "React Quill"}
+                        </span>
                     </div>
                 </div>
+
+                {/* Message de succès ou d'erreur */}
+                {message && (
+                    <div
+                        className={`p-4 mb-4 rounded ${
+                            isError ? "bg-red-100 text-red-800" : "bg-green-100 text-green-800"
+                        }`}
+                    >
+                        {message}
+                    </div>
+                )}
 
                 <form onSubmit={handleSubmit} className="space-y-8">
                     {/* SECTION 1 : Informations générales (2 colonnes sur desktop) */}
@@ -210,6 +239,51 @@ export default function CreateArticle() {
                                     className="w-full p-3 border rounded bg-green-100 focus:ring-2 focus:ring-green-400 outline-none"
                                 />
                             </div>
+
+                            {/* Champ pour l'image */}
+                            <div className="flex items-center justify-center w-full">
+                                <label
+                                    htmlFor="image-upload"
+                                    className="flex flex-col items-center justify-center w-full h-32 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500 dark:hover:bg-gray-600"
+                                >
+                                    <div className="flex flex-col items-center justify-center pt-5 pb-6">
+                                        <svg
+                                            className="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+                                            aria-hidden="true"
+                                            xmlns="http://www.w3.org/2000/svg"
+                                            fill="none"
+                                            viewBox="0 0 20 16"
+                                        >
+                                            <path
+                                                stroke="currentColor"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+                                            />
+                                        </svg>
+                                        <p className="mb-2 text-sm text-gray-500 dark:text-gray-400">
+                                            <span className="font-semibold">Cliquez pour ajouter une image</span> ou glissez-déposez
+                                        </p>
+                                        <p className="text-xs text-gray-500 dark:text-gray-400">PNG, JPG, JPEG (max 800x400px)</p>
+                                    </div>
+                                    <input
+                                        id="image-upload"
+                                        type="file"
+                                        accept="image/png, image/jpeg, image/jpg"
+                                        className="hidden"
+                                        onChange={handleImageChange}
+                                    />
+                                </label>
+                            </div>
+
+                            {/* Affichage de l'aperçu de l'image */}
+                            {imageBase64 && (
+                                <div className="mt-4">
+                                    <p className="text-sm text-gray-600">Aperçu de l’image :</p>
+                                    <img src={imageBase64} alt="Aperçu" className="w-full max-h-40 object-contain border rounded-lg shadow-md" />
+                                </div>
+                            )}
                         </div>
                     </div>
 
@@ -229,7 +303,7 @@ export default function CreateArticle() {
                                         height="600px"
                                         value={content}
                                         onChange={(val) => setContent(val)}
-                                        editorProps={{ $blockScrolling: true }}
+                                        editorProps={{$blockScrolling: true}}
                                     />
                                 ) : (
                                     <QuillNoSSRWrapper
@@ -256,40 +330,21 @@ export default function CreateArticle() {
                     )}
 
                     {/* SECTION 4 : Switch Brouillon / Publié + Bouton de soumission */}
-                    <div className="flex flex-col md:flex-row items-center justify-end md:space-x-4 space-y-4 md:space-y-0">
-                        {/* Switch Brouillon / Publié */}
-                        <div className="flex items-center space-x-3">
-                            <Switch
-                                checked={isPublished}
-                                onChange={setIsPublished}
-                                className={`${
-                                    isPublished ? "bg-green-600" : "bg-gray-300"
-                                } relative inline-flex h-6 w-11 items-center rounded-full transition-colors`}
+                    <div>
+                        <div className="flex flex-col md:flex-row items-center justify-end md:space-x-4 space-y-4 md:space-y-0">
+                            {/* Bouton Publier */}
+                            <ButtonElement
+                                type="success"
+                                buttonType="submit"
+                                rounded="md"
+                                shadow="md"
+                                bold
+                                title="Publier"
+                                className="px-5 py-3"
                             >
-                                <span className="sr-only">Basculer Brouillon / Publié</span>
-                                <span
-                                    className={`${
-                                        isPublished ? "translate-x-6" : "translate-x-1"
-                                    } inline-block h-4 w-4 transform bg-white rounded-full transition-transform`}
-                                />
-                            </Switch>
-                            <span className="text-sm text-green-800 font-medium">
-                {switchLabel}
-              </span>
+                                Publier
+                            </ButtonElement>
                         </div>
-
-                        {/* Bouton principal */}
-                        <ButtonElement
-                            type="info2"
-                            buttonType="submit"
-                            rounded="md"
-                            shadow="md"
-                            bold
-                            title="Enregistrer les modifications"
-                            className="px-5 py-3"
-                        >
-                            {buttonText}
-                        </ButtonElement>
                     </div>
                 </form>
             </div>
