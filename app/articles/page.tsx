@@ -3,12 +3,12 @@
 import React, { useState } from "react";
 import useSWR from "swr";
 import BoutonElement from "@/components/elements/BoutonElement";
-import { kyFetcher } from "@/lib/fetcher"; // ajuste le chemin selon ton arbo
+import { kyFetcher } from "@/lib/fetcher";
 
 export default function ArticleList() {
     const [search, setSearch] = useState("");
     const [page, setPage] = useState(1);
-    const limit = 6;
+    const limit = 9;
 
     const { data, error, isLoading } = useSWR(
         `/api/articles?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`,
@@ -43,35 +43,38 @@ export default function ArticleList() {
 
             {/* 🗂 Liste des articles */}
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {articles.map((article: any) => (
-                    <a
-                        key={article.id}
-                        href={`/${article.slug}`}
-                        className="block hover:shadow-lg transition-shadow duration-200 rounded-2xl overflow-hidden bg-white hover:bg-green-50"
-                    >
-                        <img
-                            src={article.image || "https://source.unsplash.com/600x400/?technology,green"}
-                            alt={article.title}
-                            className="w-full h-48 object-cover"
-                        />
-                        <div className="p-4 space-y-3">
-                            <h2 className="text-xl font-semibold text-green-700">
-                                {article.title}
-                            </h2>
-                            <p className="text-gray-600 text-sm">{article.shortDesc}</p>
-                            <div className="flex flex-wrap gap-2">
-                                {article.tags.map((tag: string, i: number) => (
-                                    <span
-                                        key={i}
-                                        className="text-sm px-2 py-1 bg-green-100 text-green-800 rounded-full"
-                                    >
-                    #{tag}
-                  </span>
-                                ))}
+                {articles.map((article: any) => {
+
+                    return (
+                        <a
+                            key={article.id}
+                            href={`/articles/${article.slug}`}
+                            className="block hover:shadow-lg transition-shadow duration-200 rounded-2xl overflow-hidden bg-white hover:bg-green-50"
+                        >
+                            <img
+                                src={article.imageBase64}
+                                alt={article.title}
+                                className="w-full h-48 object-cover"
+                            />
+                            <div className="p-4 space-y-3">
+                                <h2 className="text-xl font-semibold text-green-700">
+                                    {article.title}
+                                </h2>
+                                <p className="text-gray-600 text-sm">{article.shortDesc}</p>
+                                <div className="flex flex-wrap gap-2">
+                                    {article.tags.map((tag: string, i: number) => (
+                                        <span
+                                            key={i}
+                                            className="text-sm px-2 py-1 bg-green-100 text-green-800 rounded-full"
+                                        >
+                      #{tag}
+                    </span>
+                                    ))}
+                                </div>
                             </div>
-                        </div>
-                    </a>
-                ))}
+                        </a>
+                    );
+                })}
             </div>
 
             {/* ⏭ Pagination */}
