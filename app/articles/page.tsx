@@ -1,36 +1,100 @@
-import React from "react";
-import Link from "next/link";
+"use client";
 
-// Composant ArticleElement
-const ArticleElement = ({ article }) => {
-    return (
-        <div className="border p-4 rounded-lg shadow-md hover:shadow-lg transition">
-            <h2 className="text-xl font-bold">{article.title}</h2>
-            <p className="text-gray-600 mt-2">{article.description}</p>
-            <Link href={"#"}>
-                <button className="mt-4 bg-blue-600 text-white px-4 py-2 rounded-md hover:bg-blue-700 transition">
-                    Lire plus
-                </button>
-            </Link>
-        </div>
+import React, { useState } from "react";
+import useSWR from "swr";
+import BoutonElement from "@/components/elements/BoutonElement";
+import { kyFetcher } from "@/lib/fetcher"; // ajuste le chemin selon ton arbo
+
+export default function ArticleList() {
+    const [search, setSearch] = useState("");
+    const [page, setPage] = useState(1);
+    const limit = 6;
+
+    const { data, error, isLoading } = useSWR(
+        `/api/articles?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`,
+        kyFetcher
     );
-};
 
-// Page Liste des Articles
-const articles = [
-    { id: 1, title: "Article 1", description: "Description de l'article 1" },
-    { id: 2, title: "Article 2", description: "Description de l'article 2" },
-    { id: 3, title: "Article 3", description: "Description de l'article 3" },
-];
+    const articles = data?.articles || [];
+    const total = data?.total || 0;
+    const totalPages = Math.ceil(total / limit);
 
-export default function ArticlesPage() {
     return (
-        <div className="max-w-3xl mx-auto p-6">
-            <h1 className="text-2xl font-bold mb-6">Liste des Articles</h1>
-            <div className="grid gap-4">
-                {articles.map((article) => (
-                    <ArticleElement key={article.id} article={article} />
+        <div className="p-6 md:p-10 max-w-6xl mx-auto">
+            <h1 className="text-3xl font-bold mb-6 text-green-700 text-center">📰 Articles</h1>
+
+            {/* 🔍 Recherche */}
+            <div className="mb-6 flex justify-center">
+                <input
+                    type="text"
+                    placeholder="Rechercher un article..."
+                    className="border border-gray-300 rounded-lg px-4 py-2 w-full max-w-md"
+                    value={search}
+                    onChange={(e) => {
+                        setSearch(e.target.value);
+                        setPage(1);
+                    }}
+                />
+            </div>
+
+            {/* 🌀 Loading */}
+            {isLoading && <p className="text-center text-gray-500">Chargement en cours...</p>}
+            {error && <p className="text-center text-red-500">Erreur de chargement.</p>}
+
+            {/* 🗂 Liste des articles */}
+            <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
+                {articles.map((article: any) => (
+                    <a
+                        key={article.id}
+                        href={`/${article.slug}`}
+                        className="block hover:shadow-lg transition-shadow duration-200 rounded-2xl overflow-hidden bg-white hover:bg-green-50"
+                    >
+                        <img
+                            src={article.image || "https://source.unsplash.com/600x400/?technology,green"}
+                            alt={article.title}
+                            className="w-full h-48 object-cover"
+                        />
+                        <div className="p-4 space-y-3">
+                            <h2 className="text-xl font-semibold text-green-700">
+                                {article.title}
+                            </h2>
+                            <p className="text-gray-600 text-sm">{article.shortDesc}</p>
+                            <div className="flex flex-wrap gap-2">
+                                {article.tags.map((tag: string, i: number) => (
+                                    <span
+                                        key={i}
+                                        className="text-sm px-2 py-1 bg-green-100 text-green-800 rounded-full"
+                                    >
+                    #{tag}
+                  </span>
+                                ))}
+                            </div>
+                        </div>
+                    </a>
                 ))}
+            </div>
+
+            {/* ⏭ Pagination */}
+            <div className="flex justify-center mt-10 gap-4 items-center">
+                <BoutonElement
+                    type="secondary"
+                    size="sm"
+                    disabled={page <= 1}
+                    onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
+                >
+                    ⬅ Précédent
+                </BoutonElement>
+                <span className="text-green-700 font-medium">
+          Page {page} / {totalPages}
+        </span>
+                <BoutonElement
+                    type="secondary"
+                    size="sm"
+                    disabled={page >= totalPages}
+                    onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
+                >
+                    Suivant ➡
+                </BoutonElement>
             </div>
         </div>
     );
