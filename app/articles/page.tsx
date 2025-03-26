@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import useSWR from "swr";
 import BoutonElement from "@/components/elements/BoutonElement";
 import { kyFetcher } from "@/lib/fetcher";
+import Loading from "@/components/elements/Loading";
 
 export default function ArticleList() {
     const [search, setSearch] = useState("");
@@ -37,7 +38,12 @@ export default function ArticleList() {
             </div>
 
             {/* 🌀 Loading */}
-            {isLoading && <p className="text-center text-gray-500">Chargement en cours...</p>}
+            {isLoading &&  (
+                <div className=" justify-center items-center min-h-[60vh]">
+                <p className="text-center mx-auto my-auto text-green-600 text-lg animate-pulse">Chargement des l'articles...</p>
+                <Loading/>
+                </div>
+                )}
             {error && <p className="text-center text-red-500">Erreur de chargement.</p>}
 
             {/* 🗂 Liste des articles */}
