@@ -22,7 +22,33 @@ const AceNoSSRWrapper = dynamic(() => import("react-ace"), {
 const QuillNoSSRWrapper = dynamic(() => import("react-quill-new"), {
     ssr: false,
 });
+import "react-quill-new/dist/quill.core.css";
+import "react-quill-new/dist/quill.bubble.css";
 import "react-quill-new/dist/quill.snow.css";
+
+const quillModules = {
+    toolbar: [
+        [{ header: [1, 2, 3, false] }],
+        ["bold", "italic", "underline", "strike"],
+        [{ color: [] }, { background: [] }], // Couleurs
+        [{ script: "sub" }, { script: "super" }], // Exposants et indices
+        [{ list: "ordered" }, { list: "bullet" }],
+        [{ indent: "-1" }, { indent: "+1" }],
+        ["blockquote", "code-block"],
+        [{ align: [] }],
+        ["link", "image", "video"], // Gestion multimédia
+        ["clean"], // Supprimer la mise en forme
+    ],
+};
+
+const quillFormats = [
+    "header", "bold", "italic", "underline", "strike",
+    "color", "background", "script",
+    "list", "bullet", "indent",
+    "blockquote", "code-block",
+    "align", "link", "image", "video"
+];
+
 
 export default function CreateArticle() {
     const router = useRouter();
@@ -311,6 +337,8 @@ export default function CreateArticle() {
                                         value={content}
                                         onChange={setContent}
                                         className="h-[600px]"
+                                        modules={quillModules}
+                                        formats={quillFormats}
                                     />
                                 )
                             )}
