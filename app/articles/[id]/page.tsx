@@ -1,6 +1,6 @@
 "use client";
 
-import useSWR from "swr";
+import useSWR, { mutate } from "swr";
 import { kyFetcher } from "@/lib/fetcher";
 import { useParams } from "next/navigation";
 import parse from "html-react-parser";
@@ -17,14 +17,12 @@ export default function ArticleDetailPage() {
     const [commentContent, setCommentContent] = useState("");
     const [parentId, setParentId] = useState<string | null>(null);
     const [alert, setAlert] = useState("");
-    console.log(session)
+
     if (isLoading)
         return (
-            <div className="justify-center items-center min-h-[60vh]">
-                <p className="text-center mx-auto my-auto text-green-600 text-lg animate-pulse">
-                    Chargement de l'article...
-                </p>
-                <Loading />
+            <div className=" justify-center items-center min-h-[60vh]">
+                <p className="text-center mx-auto my-auto text-green-600 text-lg animate-pulse">Chargement de l'article...</p>
+                <Loading/>
             </div>
         );
 
@@ -36,143 +34,107 @@ export default function ArticleDetailPage() {
         );
 
     if (!data) return <p className="text-center text-gray-600">Aucun article trouvé.</p>;
-
-    const comments = Array.isArray(data.comments) ? data.comments : [];
-    const renderComments = (parent: string | null = null): JSX.Element[] => {
-        return comments
-            .filter((c) => c.parent === parent)
-            .map((comment, idx) => {
-                const key = comment.createdAt?.$date || comment.createdAt;
-                const children = renderComments(key);
-
-                return (
-                    <div key={idx} className={`${parent ? "ml-12" : ""} mb-6`}>
-                        <div className="flex items-start gap-4">
-                            <img
-                                src={`https://ui-avatars.com/api/?name=${encodeURIComponent(comment.username || "Utilisateur")}&background=random&size=40`}
-                                alt={comment.username || "Utilisateur"}
-                                className="w-10 h-10 rounded-full object-cover"
-                            />
-                            <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 w-full">
-                                <div className="flex items-center justify-between">
-                                    <div className="flex items-center gap-2">
-                                        <span className="font-medium text-sm text-gray-800">{comment.username ? comment.username : "Utilisateur"}</span>
-                                        <span className="text-xs text-gray-500">
-                    {new Date(key).toLocaleDateString()}
-                  </span>
-
-                                    </div>
-                                    <div className="text-gray-400 text-sm cursor-pointer hover:text-gray-600">⋯</div>
-                                </div>
-                                <p className="text-gray-700 text-sm mt-2 whitespace-pre-wrap">{comment.content}</p>
-                                <div className="mt-3 text-xs text-gray-500 flex gap-4">
-                                    <button className="hover:underline">❤️ Liker</button>
-                                    <button
-                                        onClick={() => setParentId(key)}
-                                        className="hover:underline"
-                                    >
-                                        💬 Répondre
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-
-                        {children.length > 0 && <div className="mt-4">{children}</div>}
-                    </div>
-                );
-            });
-    };
+    console.log(data)
     return (
+        <>
         <main className="px-4 sm:px-6 md:px-8 lg:px-10 m-2 mt-6 mx-auto">
             {/* Article */}
             <article>
                 <h1 className="text-4xl font-extrabold text-green-700 mb-2">{data.title}</h1>
-                <p className="text-green-500 text-sm italic mb-2">
-                    Publié le {new Date(data.publishedAt).toLocaleDateString()}
-                </p>
+                <p className="text-green-500 text-sm italic mb-2">Publié le {new Date(data.publishedAt).toLocaleDateString()}</p>
                 <div className="flex flex-wrap gap-2 mb-4">
                     {data.tags.slice(0, 3).map((tag: string, i: number) => (
                         <span
                             key={i}
                             className="text-sm px-2 py-1 bg-green-100 text-green-800 rounded-full"
                         >
-              #{tag}
-            </span>
+      #{tag}
+    </span>
                     ))}
                 </div>
-                <div className="ql light-content bg-green-50 rounded-xl p-2 prose prose-green max-w-none mb-10">
-                    {parse(data.content)}
-                </div>
+                <div
+                    className="ql light-content bg-green-50 rounded-xl p-2 prose prose-green max-w-none mb-10"
+
+                >{parse(data.content)}</div>
             </article>
 
-            {/* Commentaire - Style moderne type GitHub Discussion */}
-            <section className="mt-16 max-w-3xl mx-auto">
-                <h2 className="text-2xl font-bold text-gray-800 mb-6">Discussion</h2>
-
-                {/* Formulaire d'ajout */}
-                <div className="mb-10 bg-white border border-green-200 rounded-xl shadow-sm">
-                    {!session?.user?.id ? (
-                        <div className="p-4 text-sm text-red-600">
-                            Tu dois <Link href="/auth/signin" className="underline text-green-700 hover:text-green-900">te connecter</Link> pour commenter.
-                        </div>
-                    ) : (
-                        <form
-                            onSubmit={async (e) => {
-                                e.preventDefault();
-                                if (!commentContent.trim()) return;
-                                try {
-                                    await ky.post(`/api/articles/${id}/comments`, {
-                                        json: {
-                                            content: commentContent,
-                                            parent: parentId,
-                                        },
-                                    });
-                                    setCommentContent("");
-                                    setParentId(null);
-                                    setAlert("");
-                                    mutate();
-                                } catch (err: any) {
-                                    const message = await err.response?.json();
-                                    setAlert(message?.message || "Erreur lors de l'envoi du commentaire");
-                                }
-                            }}
-                        >
-      <textarea
-          value={commentContent}
-          onChange={(e) => setCommentContent(e.target.value)}
-          placeholder="Exprime-toi… on t'écoute 👀"
-          className="w-full p-4 text-sm border-0 border-b border-green-100 focus:ring-0 rounded-t-xl"
-          rows={4}
-      />
-                            {alert && <p className="px-4 pt-1 text-red-500 text-sm">{alert}</p>}
-                            {parentId && (
-                                <div className="px-4 py-2 text-xs text-gray-500 flex items-center justify-between">
-                                    Réponse à un commentaire
-                                    <button onClick={() => setParentId(null)} className="underline text-red-500">
-                                        Annuler
-                                    </button>
-                                </div>
-                            )}
-                            <div className="flex justify-end px-4 py-3 border-t border-green-100">
+            {/* Commentaires */}
+            <section>
+                <h2 className="text-2xl font-bold text-green-700 mb-4">Commentaires</h2>
+                {data.comments?.length === 0 && (
+                    <p className="text-gray-600 italic">Aucun commentaire pour l'instant.</p>
+                )}
+                <ul className="space-y-6 ">
+                    {data.comments && (Array.isArray(data.comments)) && data.comments?.map((comment, idx) => (
+                        <li key={idx} className="border border-green-100 rounded-md p-4 bg-green-50">
+                            <p className="text-gray-800">{comment.content}</p>
+                            <div className="mt-2 text-sm text-gray-500">
+                                Posté le {new Date(comment.createdAt.$date).toLocaleString()}
+                            </div>
+                            <div className="mt-3 flex gap-4 text-green-700 text-sm">
+                                <button className="hover:text-green-900">❤️ Liker</button>
                                 <button
-                                    type="submit"
-                                    className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition"
+                                    className="hover:text-green-900"
+                                    onClick={() => setParentId(comment.createdAt.$date)}
                                 >
-                                    Publier
+                                    ↩ Répondre
                                 </button>
                             </div>
-                        </form>
-                    )}
-                </div>
-                {/* Liste des commentaires */}
-                <div className="space-y-6">
-                    {comments.length === 0 ? (
-                        <p className="text-sm text-gray-500 italic">Aucun commentaire pour l’instant.</p>
-                    ) : (
-                        renderComments()
-                    )}
-                </div>
+                        </li>
+                    ))}
+                </ul>
             </section>
+
+            {/* Ajouter un commentaire */}
+            <div className="mt-10">
+                <h3 className="text-xl font-semibold text-green-700 mb-2">Ajouter un commentaire</h3>
+                {!session?.user?.id ? (
+                    <p className="text-red-600">
+                        Vous devez <Link href="/auth/signin" className="underline text-green-700">vous connecter</Link> pour commenter.
+                    </p>
+                ) : (
+                    <form
+                        className="space-y-4"
+                        onSubmit={async (e) => {
+                            e.preventDefault();
+                            if (!commentContent.trim()) return;
+
+                            try {
+                                await ky.post(`/api/articles/${id}/comments`, {
+                                    json: {
+                                        content: commentContent,
+                                        parent: parentId,
+                                    },
+                                });
+
+                                setCommentContent("");
+                                setParentId(null);
+                                setAlert("");
+                                mutate(); // rechargement via SWR
+                            } catch (err: any) {
+                                const message = await err.response?.json();
+                                setAlert(message?.message || "Erreur lors de l'envoi du commentaire");
+                            }
+                        }}
+                    >
+                        <textarea
+                            placeholder="Votre commentaire..."
+                            className="w-full border border-green-100 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-green-500"
+                            rows={4}
+                            value={commentContent}
+                            onChange={(e) => setCommentContent(e.target.value)}
+                        />
+                        {alert && <p className="text-red-600">{alert}</p>}
+                        <button
+                            type="submit"
+                            className="bg-green-800 hover:bg-green-900 text-white px-4 py-2 rounded-md"
+                        >
+                            Publier
+                        </button>
+                    </form>
+                )}
+            </div>
         </main>
+        </>
     );
 }
