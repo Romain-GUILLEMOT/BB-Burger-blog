@@ -3,7 +3,6 @@ import { PrismaClient } from "@prisma/client";
 
 const prisma = new PrismaClient();
 
-
 export async function GET(req: NextRequest) {
     try {
         const { searchParams } = new URL(req.url);
@@ -74,9 +73,8 @@ export async function POST(req: NextRequest) {
                 seoTitle,
                 seoDesc,
                 imageBase64,
-                createdAt: new Date(),
-                updatedAt: new Date(),
-                comments: {}
+                // Supprimer les champs de date, MongoDB les gère automatiquement
+                comments: {}, // S'il y a une structure à remplir pour les commentaires
             },
         });
 
@@ -85,6 +83,9 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error("Erreur lors de la création de l'article:", error); // Affiche l'erreur dans la console pour faciliter le débogage
-        return NextResponse.json({ message: "Erreur lors de la création de l'article", error: error instanceof Error ? error.message : error }, { status: 500 });
+        return NextResponse.json(
+            { message: "Erreur lors de la création de l'article", error: error instanceof Error ? error.message : error },
+            { status: 500 }
+        );
     }
 }
