@@ -72,20 +72,19 @@ export default function Home() {
             <section className="w-full max-w-6xl text-center">
                 <h2 className="text-3xl font-semibold text-gray-800 mb-8">Dernières Nouvelles</h2>
 
-                {/* Grille des 5 premiers articles */}
+                {/* Grille des 3 premiers articles */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mb-8">
                     {articles.slice(0, 3).map((article) => (
                         <ArticleCard key={article.id} article={article} />
                     ))}
                 </div>
 
-                {/* Centrage des 2 derniers articles */}
-                <div className="flex justify-center gap-8">
-                    {articles.slice(3, 5).map((article) => (
-                        <ArticleCard key={article.id} article={article} className="w-1/3 sm:w-1/3" />
+                {/* Grille des 3 derniers articles */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-8">
+                    {articles.slice(3, 6).map((article) => (
+                        <ArticleCard key={article.id} article={article} />
                     ))}
                 </div>
-
             </section>
         </div>
     );
@@ -94,24 +93,21 @@ export default function Home() {
 // Composant pour afficher un article
 const ArticleCard: React.FC<{ article: Article }> = ({ article }) => {
     return (
-        <div className="relative group w-full aspect-square bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transform transition-transform duration-300 ease-in-out hover:scale-105">
+        <a
+            href={`/articles/${article.slug}`} // Redirige directement sur clic
+            className="relative group w-full aspect-square bg-white shadow-lg rounded-lg overflow-hidden hover:shadow-2xl transform transition-transform duration-300 ease-in-out hover:scale-105"
+        >
             <Image
-                src={article.imageBase64 || "/default-image.jpg"} // Image par défaut si aucune image n'est définie
+                src={article.imageBase64 || "/default-image.jpg"} // Image par défaut
                 alt={`Image de ${article.title}`}
                 layout="fill"
                 objectFit="cover"
-                className="transition-all duration-300 group-hover:scale-110"
+                className="transition-all duration-300 group-hover:scale-110" // Agrandissement au survol
             />
             <div className="absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black to-transparent text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                 <h3 className="text-lg sm:text-xl font-semibold">{article.title}</h3>
                 <p className="text-sm sm:text-base mb-4">{article.shortDesc}</p>
-                <a
-                    href={`/articles/${article.slug}`} // Utilisation du slug pour l'URL
-                    className="inline-block px-4 py-2 bg-green-600 text-white text-sm sm:text-base font-medium rounded hover:bg-green-700 transition"
-                >
-                    Voir plus
-                </a>
             </div>
-        </div>
+        </a>
     );
 };
