@@ -2,6 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import {useSession} from "next-auth/react";
+import {getServerSession} from "next-auth";
+import authOptions from "@/lib/auth";
 
 export default function AdminStats() {
     const router = useRouter();
@@ -9,24 +12,14 @@ export default function AdminStats() {
     const [stats, setStats] = useState<number | null>(null);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
+    const { data: session, status } = useSession();
 
     useEffect(() => {
         const checkUserRole = async () => {
+            if (status === "loading") return; // attend que la session soit prête
+
             try {
-                const userId = localStorage.getItem("userId");
-                if (!userId) throw new Error("Aucun ID utilisateur trouvé");
-
-                const response = await fetch("/api/stats/user", {
-                    method: "GET",
-                    headers: { "x-user-id": userId },
-                });
-
-                if (!response.ok) throw new Error("Erreur lors de la récupération du rôle");
-
-                const data = await response.json();
-                console.log("User role data:", data); // Debugging
-
-                if (data.role === "ADMIN") {
+                if (session?.user?.role === "ADMIN") {
                     setIsAdmin(true);
                     fetchStats();
                 } else {
@@ -39,7 +32,7 @@ export default function AdminStats() {
         };
 
         checkUserRole();
-    }, [router]);
+    }, [status, session]);
 
     const fetchStats = async () => {
         setLoading(true);
