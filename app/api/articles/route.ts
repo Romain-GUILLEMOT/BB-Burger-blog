@@ -46,7 +46,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
-        const { title, slug, shortDesc, content, authorId, tags, isPublished, seoTitle, seoDesc } = body;
+        const { title, slug, shortDesc, content, authorId, tags, isPublished, seoTitle, seoDesc, imageBase64 } = body;
 
         // Vérification des champs obligatoires
         if (!title || !slug || !shortDesc || !content || !tags) {
@@ -73,6 +73,7 @@ export async function POST(req: NextRequest) {
                 isPublished,
                 seoTitle,
                 seoDesc,
+                imageBase64,
                 createdAt: new Date(),
                 updatedAt: new Date(),
                 comments: {}
