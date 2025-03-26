@@ -30,6 +30,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
         const newComment = {
             userId,
+            username: session.user.name,
             content,
             parent: parent || null,
             createdAt: new Date(),
@@ -51,7 +52,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
             data: { comments: updatedComments },
         });
 
-        return NextResponse.json(updatedArticle, { status: 201 });
+        return NextResponse.json({status: session.user.username, test : ""}, { status: 201 });
     } catch (error) {
         console.error("Erreur lors de l'ajout du commentaire:", error);
         return NextResponse.json(
