@@ -79,28 +79,7 @@ const About: React.FC = () => {
                         Merci de visiter notre blog, et n'hésitez pas à nous contacter pour échanger ou poser des questions. Ensemble, nous pouvons contribuer à un avenir technologique durable !
                     </p>
                 </section>
-
-                {/* Contact Section */}
-                <section>
-                    <button
-                        onClick={toggleContactVisibility}
-                        className="w-full text-left bg-green-800 text-white py-3 px-6 rounded-lg shadow-md hover:bg-green-900 focus:outline-none focus:ring-2 focus:ring-green-600 transition duration-300"
-                    >
-                        {isContactVisible ? 'Masquer les informations de contact' : 'Voir les informations de contact'}
-                    </button>
-                    {isContactVisible && (
-                        <div className="mt-4 text-gray-700">
-                            <p>Email : <a href="mailto:contact@greenit.com" className="text-green-600">contact@greenit.com</a></p>
-                            <p>Twitter : <a href="https://twitter.com/greenit" className="text-green-600">twitter.com/greenit</a></p>
-                        </div>
-                    )}
-                </section>
             </main>
-
-            {/* Footer */}
-            <footer className="bg-green-700 text-white py-6 text-center mt-20 rounded-t-3xl">
-                <p>&copy; 2025 Green IT - Tous droits réservés</p>
-            </footer>
         </div>
     );
 };

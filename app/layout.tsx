@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "@/styles/tw.css";
 import Header from "@/components/elements/Header";
+import Footer from "@/components/elements/Footer";
 import SessionProviderWrapper from "@/components/providers/SessionProviderWrapper";
 
 const geistSans = Geist({
@@ -24,17 +25,15 @@ export default function RootLayout({
                                    }: Readonly<{
     children: React.ReactNode;
 }>) {
-
-
-
     return (
         <html lang="en">
         <SessionProviderWrapper>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-        {!["/auth/register", "/auth/login"].includes("router.pathname") && <Header />}
+            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+            {!["/auth/register", "/auth/login"].includes("router.pathname") && <Header />}
 
             {children}
-        </body>
+            <Footer />
+            </body>
         </SessionProviderWrapper>
         </html>
     );
