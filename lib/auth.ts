@@ -11,6 +11,13 @@ import verifyAuthenticationResponse from "@passwordless-id/webauthn";
 
 // Initialise Prisma
 const prisma = new PrismaClient();
+interface CustomToken {
+    id?: string;
+    name?: string | null;
+    email?: string | null;
+    role?: string | null;
+    picture?: string | null;
+}
 
 // Configuration NextAuth
 export const authOptions: NextAuthOptions = {
@@ -50,7 +57,7 @@ export const authOptions: NextAuthOptions = {
                 const valid = await bcrypt.compare(password, user.password);
                 if (!valid) throw new Error("Mot de passe incorrect");
 
-                return { id: user.id, name: user.username, email: user.email };
+                return { id: user.id, name: user.username, email: user.email, role: user.role };
             },
         }),
         // Passkeys (WebAuthn)
@@ -78,21 +85,28 @@ export const authOptions: NextAuthOptions = {
 
                 if (!verification.verified) throw new Error("Passkey invalide");
 
-                return { id: user.id, name: user.username, email: user.email };
+                return { id: user.id, name: user.username, email: user.email, role: user.role };
             },
         }),
     ],
     callbacks: {
         // On ajoute l'ID de l'utilisateur au token JWT
         async jwt({ token, user }) {
-            if (user) token.id = user.id;
+            if (user) {
+                token.id = user.id;
+                token.role = user.role;
+
+            }
             return token;
         },
-        // Ajout de l'ID utilisateur dans la session
-        async session({ session, token }) {
-            if (session.user) session.user.id = token.id;
+
+        async session({ session, token }: { session: any; token: CustomToken }) {
+            if (session.user && token.id) {
+                session.user.id = token.id;
+                session.user.role = token.role;
+            }
             return session;
-        },
+        }
     },
 
     pages: {
@@ -100,3 +114,5 @@ export const authOptions: NextAuthOptions = {
         error: "/auth/error",
     },
 };
+
+export default authOptions;

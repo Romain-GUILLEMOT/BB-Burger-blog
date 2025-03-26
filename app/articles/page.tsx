@@ -28,7 +28,7 @@ export default function ArticleList() {
                 <input
                     type="text"
                     placeholder="Rechercher un article..."
-                    className="border border-gray-300 rounded-lg px-4 py-2 w-full max-w-md"
+                    className="border border-green-300 focus:border-green-500 focus:ring-2 focus:ring-green-400 rounded-lg px-4 py-2 w-full max-w-md transition duration-200 outline-none"
                     value={search}
                     onChange={(e) => {
                         setSearch(e.target.value);
@@ -67,13 +67,13 @@ export default function ArticleList() {
                                 </h2>
                                 <p className="text-gray-600 text-sm">{article.shortDesc}</p>
                                 <div className="flex flex-wrap gap-2">
-                                    {article.tags.map((tag: string, i: number) => (
+                                    {article.tags.slice(0, 3).map((tag: string, i: number) => (
                                         <span
                                             key={i}
                                             className="text-sm px-2 py-1 bg-green-100 text-green-800 rounded-full"
                                         >
-                      #{tag}
-                    </span>
+      #{tag}
+    </span>
                                     ))}
                                 </div>
                             </div>
