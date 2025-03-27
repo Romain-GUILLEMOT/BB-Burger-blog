@@ -1,9 +1,10 @@
-import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import type {Metadata} from "next";
+import {Geist, Geist_Mono} from "next/font/google";
 import "@/styles/tw.css";
 import Header from "@/components/elements/Header";
 import Footer from "@/components/elements/Footer";
 import SessionProviderWrapper from "@/components/providers/SessionProviderWrapper";
+import ContactLayout from "@/components/elements/ContactLayout";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -25,14 +26,18 @@ export default function RootLayout({
                                    }: Readonly<{
     children: React.ReactNode;
 }>) {
+
     return (
         <html lang="en">
         <SessionProviderWrapper>
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-            {!["/auth/register", "/auth/login"].includes("router.pathname") && <Header />}
+             <Header/>
 
             {children}
-            <Footer />
+
+            <ContactLayout/>
+            <Footer/>
+
             </body>
         </SessionProviderWrapper>
         </html>

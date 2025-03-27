@@ -2,12 +2,14 @@
 
 import React, { useState } from "react";
 import useSWR from "swr";
-import BoutonElement from "@/components/elements/BoutonElement";
+import BoutonElement from "@/components/elements/BouttonElement";
 import { kyFetcher } from "@/lib/fetcher";
 import Loading from "@/components/elements/Loading";
+import debounce from "debounce";
 
 export default function ArticleList() {
     const [search, setSearch] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [page, setPage] = useState(1);
     const limit = 9;
 
@@ -19,7 +21,10 @@ export default function ArticleList() {
     const articles = data?.articles || [];
     const total = data?.total || 0;
     const totalPages = Math.ceil(total / limit);
-
+    const handleSearch = debounce((e: React.ChangeEvent<HTMLInputElement>) => {
+        setSearch(e.target.value);
+        setPage(1);
+    }, 750);
     return (
         <div className="p-6 md:p-10 max-w-6xl mx-auto">
             <h1 className="text-3xl font-bold mb-6 text-green-700 text-center">📰 Articles</h1>
@@ -29,11 +34,13 @@ export default function ArticleList() {
                     type="text"
                     placeholder="Rechercher un article..."
                     className="border border-green-300 focus:border-green-500 focus:ring-2 focus:ring-green-400 rounded-lg px-4 py-2 w-full max-w-md transition duration-200 outline-none"
-                    value={search}
-                    onChange={(e) => {
-                        setSearch(e.target.value);
-                        setPage(1);
+                    value={debouncedSearch}
+                    onChange={(e) =>
+                    {
+                        setDebouncedSearch(e.target.value)
+                        handleSearch(e)
                     }}
+
                 />
             </div>
 

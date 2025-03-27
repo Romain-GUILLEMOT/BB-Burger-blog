@@ -4,7 +4,7 @@ import { useEffect, useState, FormEvent } from "react";
 import { useRouter } from "next/navigation";
 import dynamic from "next/dynamic";
 import { Switch } from "@headlessui/react";
-import ButtonElement from "@/components/elements/BoutonElement";
+import ButtonElement from "@/components/elements/BouttonElement";
 import parse from "html-react-parser";
 import { useSession } from "next-auth/react";
 

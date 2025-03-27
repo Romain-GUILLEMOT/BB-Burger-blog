@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
+import HeaderMain from "@/components/elements/header/HeaderMain";
 
 // Définition du type pour les articles
 type Article = {
@@ -62,6 +63,8 @@ export default function Home() {
     }
 
     return (
+        <>
+        <HeaderMain/>
         <div className="flex flex-col items-center justify-center min-h-screen bg-gray-50 p-8">
             {/* Texte principal */}
             <h1 className="text-4xl sm:text-6xl font-bold text-center mb-12">
@@ -86,7 +89,7 @@ export default function Home() {
                     ))}
                 </div>
             </section>
-        </div>
+        </div></>
     );
 }
 

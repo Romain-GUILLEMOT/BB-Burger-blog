@@ -7,7 +7,7 @@ export default function Loading() {
             <div className="mx-auto text-center">
                     <img
                         src="https://assets.romain-guillemot.dev/greenlaglogo_full.webp"
-                        className="h-32 w-32 mx-auto rounded-full loader"
+                        className="h-4 w-4 mx-auto rounded-full loader"
                         alt="Logo"
                     />
 

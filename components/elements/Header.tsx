@@ -3,11 +3,15 @@ import React from 'react';
 import { Disclosure } from '@headlessui/react';
 import {Bars3Icon, XMarkIcon} from "@heroicons/react/24/solid";
 import AuthMenu from "@/components/elements/header/AuthMenu";
+import { usePathname } from "next/navigation";
 
 export default function Header() {
+    const pathname = usePathname();
+    if (["/auth/register", "/auth/login", "/"].includes(pathname)) return null;
+
     return (
 
-        <Disclosure as="header" className="bg-green-600 shadow-md rounded-b-[50px]">
+        <Disclosure as="header" className="bg-green-700 shadow-md rounded-b-[50px]">
             {({ open }) => (
                 <>
                     <nav className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8" aria-label="Global">
