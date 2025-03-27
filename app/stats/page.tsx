@@ -2,14 +2,23 @@
 
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import {useSession} from "next-auth/react";
-import {getServerSession} from "next-auth";
+import { useSession } from "next-auth/react";
+import { getServerSession } from "next-auth";
 import authOptions from "@/lib/auth";
+import { BarChart, Bar, XAxis, YAxis, Tooltip, CartesianGrid, ResponsiveContainer } from "recharts";
+
+type ArticleStats = {
+    id: string;
+    title: string;
+    views: number;
+    comments: number;
+    likes: number;
+};
 
 export default function AdminStats() {
     const router = useRouter();
     const [isAdmin, setIsAdmin] = useState<boolean>(false);
-    const [stats, setStats] = useState<number | null>(null);
+    const [stats, setStats] = useState<ArticleStats[]>([]);
     const [loading, setLoading] = useState<boolean>(true);
     const [error, setError] = useState<string | null>(null);
     const { data: session, status } = useSession();
@@ -42,19 +51,13 @@ export default function AdminStats() {
             if (!response.ok) throw new Error("Erreur lors du chargement des stats");
 
             const data = await response.json();
-            console.log("Stats reçues :", data); // Debugging
-            setStats(data.stats); // ✅ Assure-toi que ça récupère bien `10`
+            setStats(data.stats); // ✅ Assure-toi que ça récupère bien les stats
         } catch (err: any) {
             setError(err.message);
         } finally {
             setLoading(false);
         }
     };
-
-    useEffect(() => {
-        console.log("isAdmin:", isAdmin);
-        console.log("Stats actuelles:", stats);
-    }, [isAdmin, stats]);
 
     if (loading) return <p className="text-center text-gray-600">Chargement des statistiques...</p>;
     if (error) return <p className="text-center text-red-600">❌ Erreur : {error}</p>;
@@ -63,10 +66,21 @@ export default function AdminStats() {
         <div className="min-h-screen p-8 bg-gray-100 text-gray-800">
             <h1 className="text-4xl font-bold text-center mb-8">📊 Statistiques du site</h1>
 
-            {isAdmin && stats !== null ? (
+            {isAdmin && stats.length > 0 ? (
                 <>
-                    <p className="text-center text-xl font-semibold mb-4">📊 Valeur des stats : {stats}</p>
-
+                    <div className="mb-8">
+                        <ResponsiveContainer width="100%" height={400}>
+                            <BarChart data={stats} margin={{ top: 20, right: 30, left: 20, bottom: 20 }}>
+                                <CartesianGrid strokeDasharray="3 3" />
+                                <XAxis dataKey="title" />
+                                <YAxis />
+                                <Tooltip />
+                                <Bar dataKey="views" fill="#8884d8" name="Vues" />
+                                <Bar dataKey="comments" fill="#82ca9d" name="Commentaires" />
+                                <Bar dataKey="likes" fill="#ffc658" name="Likes" />
+                            </BarChart>
+                        </ResponsiveContainer>
+                    </div>
                     <button
                         onClick={fetchStats}
                         className="mb-6 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 transition"
@@ -75,7 +89,7 @@ export default function AdminStats() {
                     </button>
                 </>
             ) : (
-                <p className="text-center text-gray-600">Vérification des permissions...</p>
+                <p className="text-center text-gray-600">Aucune statistique disponible...</p>
             )}
         </div>
     );
