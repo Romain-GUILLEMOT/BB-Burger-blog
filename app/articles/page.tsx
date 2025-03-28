@@ -160,7 +160,7 @@ export default function ArticleList() {
                 {canLoadMore && !loading && (
                     <BoutonElement
                         onClick={handleVoirPlus}
-                        className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 border border-green-600 transition"
+                        className="px-4 py-2 rounded-md bg-green-600 text-green-600 hover:bg-green-700 hover:text-white border border-green-600 transition"
                     >
                         Voir plus
                     </BoutonElement>

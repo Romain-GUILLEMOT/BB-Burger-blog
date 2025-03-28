@@ -7,7 +7,7 @@ import { usePathname } from "next/navigation";
 
 export default function Header() {
     const pathname = usePathname();
-    if (["/auth/register", "/auth/login", "/"].includes(pathname)) return <></>;
+    if (["/auth/register", "/auth/login", "/"].includes(pathname) || pathname.startsWith("/admin")) return <></>;
 
     return (
 

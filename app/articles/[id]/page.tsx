@@ -20,15 +20,18 @@ export default function ArticleDetailPage() {
     const [parentId, setParentId] = useState<string | null>(null);
     const [alert, setAlert] = useState("");
     const [likes, setLikes] = useState<number>(0);
+    const [hasLiked, setHasLiked] = useState(false);
 
-    // Mettre à jour le nombre de likes lorsque les données sont chargées
     useEffect(() => {
         if (data?.likes) {
-            setLikes(data.likes.length); // Compter le nombre d'ID dans le tableau de likes
+            setLikes(data.likes.length);
         }
-    }, [data]);
+        if (data?.likes && session?.user?.id) {
+            setHasLiked(data.likes.includes(session.user.id));
+        }
+    }, [data, session]);
 
-    if (isLoading)
+    if (isLoading) {
         return (
             <div className="justify-center items-center min-h-[60vh]">
                 <p className="text-center mx-auto my-auto text-green-600 text-lg animate-pulse">
@@ -37,17 +40,20 @@ export default function ArticleDetailPage() {
                 <Loading />
             </div>
         );
+    }
 
-    if (error)
+    if (error) {
         return (
             <div className="flex justify-center items-center min-h-[60vh]">
                 <p className="text-red-600">Erreur : {error.message}</p>
             </div>
         );
+    }
 
     if (!data) return <p className="text-center text-gray-600">Aucun article trouvé.</p>;
 
     const comments = Array.isArray(data.comments) ? [...data.comments].reverse() : [];
+
     const renderComments = (parent: string | null = null): JSX.Element[] => {
         return comments
             .filter((c) => c.parent === parent)
@@ -97,25 +103,34 @@ export default function ArticleDetailPage() {
         }
 
         try {
-            // Vérifier si l'utilisateur a déjà liké cet article
-            const res = await ky.post(`/api/articles/${id}/likes`);
-            const json = await res.json();
-
-            if (res.status === 400) {
-                createNotification({ type: "warning", message: "Tu as déjà liké cet article !" });
+            let res;
+            if (hasLiked) {
+                // Si l'utilisateur a déjà liké, on "unlike" (supprime son like)
+                res = await ky.post(`/api/articles/${id}/likes`); // POST pour "unlike"
             } else {
-                // Mettre à jour le nombre de likes après avoir liké
-                setLikes(json.likes.length);  // Ici json.likes devrait être un tableau d'IDs d'utilisateurs
+                // Sinon, on like l'article (ajoute son like)
+                res = await ky.post(`/api/articles/${id}/likes`); // POST pour "like"
             }
-        } catch (err: any) {
-            createNotification({ type: "error", message: "Erreur lors du like de l'article" });
+
+            const responseBody = await res.json();
+            if (res.status === 200) {
+                // Inverser l'état de hasLiked
+                setHasLiked(!hasLiked);
+                // Mettre à jour le nombre de likes
+                setLikes(responseBody.likes); // Met à jour les likes avec le nombre de likes renvoyé par l'API
+            } else {
+                createNotification({ type: "warning", message: responseBody?.message || "Erreur lors de l'opération." });
+            }
+        } catch (err) {
+            console.error("Erreur pendant l'opération de like:", err);
+            createNotification({ type: "error", message: "Erreur lors de l'opération de like" });
         }
     };
 
 
+
     return (
         <main className="px-4 sm:px-6 md:px-8 lg:px-10 m-2 mt-6 mx-auto">
-            {/* Article */}
             <article>
                 <h1 className="text-4xl font-extrabold text-green-700 mb-2">{data.title}</h1>
                 <p className="text-green-500 text-sm italic mb-2">
@@ -136,15 +151,13 @@ export default function ArticleDetailPage() {
                 </div>
             </article>
 
-            {/* Commentaire - Style moderne type GitHub Discussion */}
             <section className="mt-16 max-w-3xl mx-auto">
                 <h2 className="text-2xl font-bold text-gray-800 mb-6">Discussion</h2>
 
-                {/* Formulaire d'ajout */}
                 <div className="mb-10 bg-white border border-green-200 rounded-xl shadow-sm">
                     {!session?.user?.id ? (
                         <div className="p-4 text-sm text-red-600">
-                            Tu dois <Link href="/auth/signin" className="underline text-green-700 hover:text-green-900">te connecter</Link> pour commenter.
+                            Tu dois <Link href="/auth/login" className="underline text-green-700 hover:text-green-900">te connecter</Link> pour commenter.
                         </div>
                     ) : (
                         <form
@@ -193,7 +206,7 @@ export default function ArticleDetailPage() {
                         </form>
                     )}
                 </div>
-                {/* Liste des commentaires */}
+
                 <div className="space-y-6">
                     {comments.length === 0 ? (
                         <p className="text-sm text-gray-500 italic">Aucun commentaire pour l’instant.</p>
@@ -202,16 +215,14 @@ export default function ArticleDetailPage() {
                     )}
                 </div>
             </section>
-
-            {/* Like button */}
             <div className="mt-6 flex justify-between items-center">
-                <button
-                    onClick={handleLike}
-                    className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition"
-                >
-                    ❤️ {likes} Likes
-                </button>
-            </div>
+            <button
+                onClick={handleLike}
+                className={`px-4 py-2 rounded-md transition ${hasLiked ? "bg-gray-400 hover:bg-gray-500 text-white" : "bg-green-700 hover:bg-green-800 text-white"}`}
+            >
+                ❤️ {likes} Likes
+            </button>
+        </div>
         </main>
     );
 }
