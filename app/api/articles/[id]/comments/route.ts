@@ -12,7 +12,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
         }
+        const prisma = new PrismaClient();
 
+        const user = await prisma.user.findUnique({
+            where: { id: session?.user.id },
+        });
+        console.log(user)
         const userId = session.user.id;
         const slug = params.id;
         const body = await req.json();

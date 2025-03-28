@@ -41,6 +41,8 @@ model Article {
   seoTitle    String?
   seoDesc     String?
   comments    Json? // Remplace `Comment[]`
+  likes       String[] // Nombre de likes
+  views       Int       @default(0) // Nombre de vues
 }
 
 /// 📊 **Statistiques de l'Article**

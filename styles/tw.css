@@ -27,6 +27,27 @@
     border: none!important;
 }
 
+.article-card {
+    /* Transition douce entre l'état normal et le survol */
+    transition: transform 0.5s ease;
+}
+
+/* Survol => déclenche l'animation 'shake' en boucle */
+.article-card:hover {
+    animation: shake 0.6s linear infinite;
+}
+
+@keyframes shake {
+    0%, 100% {
+        transform: translate(0, 0);
+    }
+    20%, 60% {
+        transform: translate(-5px, 0);
+    }
+    40%, 80% {
+        transform: translate(5px, 0);
+    }
+}
 
 
 

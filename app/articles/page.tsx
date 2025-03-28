@@ -1,108 +1,170 @@
 "use client";
 
-import React, { useState } from "react";
-import useSWR from "swr";
-import BoutonElement from "@/components/elements/BoutonElement";
+import React, { useState, useEffect, useCallback } from "react";
+import BoutonElement from "@/components/elements/BouttonElement";
 import { kyFetcher } from "@/lib/fetcher";
 import Loading from "@/components/elements/Loading";
+import debounce from "debounce";
+
+/**
+ * Logique identique, on retire le spin
+ * et on prépare une animation "il a peur d'être cliqué"
+ * via un fichier CSS séparé. Exemple .article-card:hover { animation: ... }
+ */
 
 export default function ArticleList() {
-    const [search, setSearch] = useState("");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [debouncedSearch, setDebouncedSearch] = useState("");
     const [page, setPage] = useState(1);
     const limit = 9;
 
-    const { data, error, isLoading } = useSWR(
-        `/api/articles?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`,
-        kyFetcher
+    // Liste d’articles, total, chargement et erreurs
+    const [articles, setArticles] = useState<any[]>([]);
+    const [total, setTotal] = useState(0);
+    const [loading, setLoading] = useState(false);
+    const [error, setError] = useState<Error | null>(null);
+
+    /**
+     * Gère la recherche (500 ms de debounce).
+     * Réinitialise la page à chaque nouvelle recherche.
+     */
+    const handleSearch = useCallback(
+        debounce((value: string) => {
+            setPage(1);
+            setSearchTerm(value.trim());
+        }, 500),
+        []
     );
 
-    const articles = data?.articles || [];
-    const total = data?.total || 0;
-    const totalPages = Math.ceil(total / limit);
+    /**
+     * Met à jour le champ local et déclenche handleSearch.
+     */
+    const onChangeSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const val = e.target.value;
+        setDebouncedSearch(val);
+        handleSearch(val);
+    };
+
+    /**
+     * Récupération des articles via l’API custom.
+     * - page=1 => on remplace
+     * - sinon => on concatène
+     */
+    const fetchArticles = async (pageToFetch: number, currentSearch: string) => {
+        try {
+            setLoading(true);
+            setError(null);
+            const data = await kyFetcher(
+                `/api/articles?search=${encodeURIComponent(currentSearch)}&page=${pageToFetch}&limit=${limit}`
+            );
+            if (pageToFetch === 1) {
+                setArticles(data.articles);
+            } else {
+                setArticles((prev) => [...prev, ...data.articles]);
+            }
+            setTotal(data.total);
+        } catch (err: any) {
+            console.error(err);
+            setError(err);
+        } finally {
+            setLoading(false);
+        }
+    };
+
+    /**
+     * Recharge à chaque changement de page ou de recherche.
+     */
+    useEffect(() => {
+        fetchArticles(page, searchTerm);
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [page, searchTerm]);
+
+    const handleVoirPlus = () => {
+        setPage((prev) => prev + 1);
+    };
+
+    // Tant qu’il reste des articles à charger
+    const canLoadMore = articles.length < total;
 
     return (
-        <div className="p-6 md:p-10 max-w-6xl mx-auto">
-            <h1 className="text-3xl font-bold mb-6 text-green-700 text-center">📰 Articles</h1>
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-8 bg-white">
+            {/* Titre */}
+            <h1 className="text-2xl font-bold text-center mb-8 text-green-700">
+                Liste des articles
+            </h1>
 
-            <div className="mb-6 flex justify-center">
+            {/* Champ de recherche */}
+            <div className="max-w-md mx-auto mb-6">
                 <input
                     type="text"
-                    placeholder="Rechercher un article..."
-                    className="border border-green-300 focus:border-green-500 focus:ring-2 focus:ring-green-400 rounded-lg px-4 py-2 w-full max-w-md transition duration-200 outline-none"
-                    value={search}
-                    onChange={(e) => {
-                        setSearch(e.target.value);
-                        setPage(1);
-                    }}
+                    placeholder="Rechercher..."
+                    className="w-full border border-green-300 focus:border-green-500 focus:ring-2 focus:ring-green-200 rounded-md px-4 py-2 outline-none"
+                    value={debouncedSearch}
+                    onChange={onChangeSearch}
                 />
             </div>
 
-            {/* 🌀 Loading */}
-            {isLoading &&  (
-                <div className=" justify-center items-center min-h-[60vh]">
-                <p className="text-center mx-auto my-auto text-green-600 text-lg animate-pulse">Chargement des l'articles...</p>
-                <Loading/>
-                </div>
-                )}
-            {error && <p className="text-center text-red-500">Erreur de chargement.</p>}
+            {/* Erreur */}
+            {error && (
+                <p className="text-center text-red-600 mb-4">
+                    Erreur de chargement.
+                </p>
+            )}
 
-            {/* 🗂 Liste des articles */}
+            {/* Liste d’articles */}
             <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
-                {articles.map((article: any) => {
-
-                    return (
-                        <a
-                            key={article.id}
-                            href={`/articles/${article.slug}`}
-                            className="block hover:shadow-lg transition-shadow duration-200 rounded-2xl overflow-hidden bg-white hover:bg-green-50"
-                        >
+                {articles.map((article: any) => (
+                    <a
+                        key={article.id}
+                        href={`/articles/${article.slug}`}
+                        className="article-card group relative block border border-green-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md"
+                    >
+                        {article.imageBase64 && (
                             <img
                                 src={article.imageBase64}
                                 alt={article.title}
                                 className="w-full h-48 object-cover"
                             />
-                            <div className="p-4 space-y-3">
-                                <h2 className="text-xl font-semibold text-green-700">
-                                    {article.title}
-                                </h2>
-                                <p className="text-gray-600 text-sm">{article.shortDesc}</p>
-                                <div className="flex flex-wrap gap-2">
-                                    {article.tags.slice(0, 3).map((tag: string, i: number) => (
-                                        <span
-                                            key={i}
-                                            className="text-sm px-2 py-1 bg-green-100 text-green-800 rounded-full"
-                                        >
-      #{tag}
-    </span>
-                                    ))}
-                                </div>
+                        )}
+                        <div className="p-4">
+                            <h2 className="text-lg font-medium text-green-800 mb-2 line-clamp-2">
+                                {article.title}
+                            </h2>
+                            <p className="text-sm text-gray-700 line-clamp-2 mb-2">
+                                {article.shortDesc}
+                            </p>
+                            <div className="flex flex-wrap gap-2">
+                                {article.tags?.slice(0, 3).map((tag: string) => (
+                                    <span
+                                        key={tag}
+                                        className="px-2 py-1 bg-green-100 text-green-700 rounded-full text-xs"
+                                    >
+                    #{tag}
+                  </span>
+                                ))}
                             </div>
-                        </a>
-                    );
-                })}
+                        </div>
+                    </a>
+                ))}
             </div>
 
-            {/* ⏭ Pagination */}
-            <div className="flex justify-center mt-10 gap-4 items-center">
-                <BoutonElement
-                    type="secondary"
-                    size="sm"
-                    disabled={page <= 1}
-                    onClick={() => setPage((prev) => Math.max(prev - 1, 1))}
-                >
-                    ⬅ Précédent
-                </BoutonElement>
-                <span className="text-green-700 font-medium">
-          Page {page} / {totalPages}
-        </span>
-                <BoutonElement
-                    type="secondary"
-                    size="sm"
-                    disabled={page >= totalPages}
-                    onClick={() => setPage((prev) => Math.min(prev + 1, totalPages))}
-                >
-                    Suivant ➡
-                </BoutonElement>
+            {/* Loader */}
+            {loading && (
+                <div className="flex justify-center mt-4">
+                    <Loading />
+                </div>
+            )}
+
+            {/* Bouton "Voir plus" */}
+            <div className="flex justify-center mt-8">
+                {canLoadMore && !loading && (
+                    <BoutonElement
+                        onClick={handleVoirPlus}
+                        className="px-4 py-2 rounded-md bg-green-600 text-white hover:bg-green-700 border border-green-600 transition"
+                    >
+                        Voir plus
+                    </BoutonElement>
+                )}
             </div>
         </div>
     );
