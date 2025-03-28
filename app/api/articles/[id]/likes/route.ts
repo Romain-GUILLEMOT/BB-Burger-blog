@@ -1,9 +1,7 @@
-// likes/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
 import authOptions from "@/lib/auth";
-import createNotification from "@/components/elements/Notification"; // Assurez-vous d'importer la fonction pour créer des notifications
 
 const prisma = new PrismaClient();
 
@@ -20,50 +18,52 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         // Récupérer l'article par son slug
         const article = await prisma.article.findUnique({
             where: { slug },
+            select: {
+                likes: true, // Récupérer uniquement le tableau des likes
+                id: true, // Assurez-vous de récupérer l'ID de l'article
+            },
         });
 
         if (!article) {
             return NextResponse.json({ message: "Article non trouvé" }, { status: 404 });
         }
 
-        // Si article.likes est undefined, initialisez-le comme un tableau vide
-        let likes = Array.isArray(article.likes) ? article.likes : [];
+        let likes = article.likes || []; // Assurez-vous que 'likes' est un tableau
 
         // Vérifier si l'utilisateur a déjà liké l'article
-        if (likes.includes(userId)) {
-            // Afficher une notification "Déjà liké"
-            createNotification({ type: "warning", message: "Tu as déjà liké cet article !" });
-            return NextResponse.json({ message: "Déjà liké" }, { status: 400 });
-        }
+        const alreadyLiked = likes.includes(userId);
 
-        // Vérifier que l'ID utilisateur est valide
-        if (!userId) {
-            return NextResponse.json({ message: "Utilisateur non valide" }, { status: 400 });
-        }
+        if (alreadyLiked) {
+            // Si l'utilisateur a déjà liké, on supprime son like
+            const updatedLikes = likes.filter((id) => id !== userId); // Retirer l'ID de l'utilisateur du tableau
 
-        // Ajouter l'ID de l'utilisateur au tableau des likes de l'article
-        likes.push(userId); // Utiliser push pour ajouter l'ID de l'utilisateur au tableau des likes
-
-        // Filtrer les éventuelles valeurs undefined dans le tableau
-        const filteredLikes = likes.filter(Boolean);
-
-        // Ajouter l'ID de l'utilisateur au tableau des likes de l'article
-        const updatedArticle = await prisma.article.update({
-            where: { slug },
-            data: {
-                likes: {
-                    push: filteredLikes, // Utiliser push pour ajouter à un tableau existant
+            const updatedArticle = await prisma.article.update({
+                where: { slug },
+                data: {
+                    likes: updatedLikes, // Mettre à jour les likes avec le tableau sans l'ID de l'utilisateur
                 },
-            },
-        });
+            });
 
-        // Retourner le nombre de likes mis à jour
-        return NextResponse.json({ likes: updatedArticle.likes.length }, { status: 200 });
+            return NextResponse.json({ likes: updatedArticle.likes.length, liked: false }, { status: 200 });
+        } else {
+            // Si l'utilisateur n'a pas encore liké, on ajoute son like
+            const updatedLikes = [...likes, userId];
+
+            const updatedArticle = await prisma.article.update({
+                where: { slug },
+                data: {
+                    likes: updatedLikes, // Ajouter l'ID de l'utilisateur au tableau des likes
+                },
+            });
+
+            return NextResponse.json({ likes: updatedArticle.likes.length, liked: true }, { status: 200 });
+        }
     } catch (error) {
-        console.error("❌ Erreur lors du like de l'article:", error);
+        console.error("❌ Erreur lors du like/unlike de l'article:", error);
         return NextResponse.json(
             { message: "Erreur serveur", error: error instanceof Error ? error.message : error },
             { status: 500 }
         );
     }
 }
+
