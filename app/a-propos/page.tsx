@@ -50,23 +50,6 @@ const About: React.FC = () => {
                     </ul>
                 </section>
 
-                {/* Pourquoi ce blog Section */}
-                <section className="mb-10 rounded-lg shadow-lg bg-white p-8">
-                    <h2 className="text-2xl font-semibold text-green-700">Pourquoi ce blog ?</h2>
-                    <p className="mt-4">
-                        Les technologies numériques sont essentielles à notre vie quotidienne, mais leur production et leur utilisation
-                        génèrent une quantité importante de déchets électroniques et de consommation d’énergie. Avec l'augmentation
-                        continue des besoins numériques, il devient crucial d'explorer des alternatives qui limitent l'impact sur notre
-                        planète.
-                    </p>
-                    <p className="mt-4">Notre blog vise à :</p>
-                    <ul className="list-disc ml-6 mt-4 space-y-2">
-                        <li><strong>Présenter des solutions concrètes</strong> pour rendre l’informatique plus éco-responsable.</li>
-                        <li><strong>Analyser les dernières tendances</strong> en matière de Green IT, telles que les data centers éco-efficients, le recyclage des équipements électroniques, et les logiciels optimisés pour une consommation énergétique réduite.</li>
-                        <li><strong>Partager des études de cas</strong>, des interviews d'experts et des guides pratiques sur les meilleures pratiques à adopter dans le domaine du Green IT.</li>
-                    </ul>
-                </section>
-
                 {/* Qui sommes-nous Section */}
                 <section className="mb-10 rounded-lg shadow-lg bg-white p-8">
                     <h2 className="text-2xl font-semibold text-green-700">Qui sommes-nous ?</h2>
@@ -85,4 +68,3 @@ const About: React.FC = () => {
 };
 
 export default About;
-
