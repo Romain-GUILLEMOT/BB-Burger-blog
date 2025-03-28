@@ -5,7 +5,7 @@ import { kyFetcher } from "@/lib/fetcher";
 import { useParams } from "next/navigation";
 import parse from "html-react-parser";
 import Loading from "@/components/elements/Loading";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import ky from "ky";
@@ -16,11 +16,18 @@ export default function ArticleDetailPage() {
     const { data, error, isLoading, mutate } = useSWR(`/api/articles/${id}`, kyFetcher);
     const { data: session } = useSession();
 
-
     const [commentContent, setCommentContent] = useState("");
     const [parentId, setParentId] = useState<string | null>(null);
     const [alert, setAlert] = useState("");
-    console.log(session)
+    const [likes, setLikes] = useState<number>(0);
+
+    // Mettre à jour le nombre de likes lorsque les données sont chargées
+    useEffect(() => {
+        if (data?.likes) {
+            setLikes(data.likes.length); // Compter le nombre d'ID dans le tableau de likes
+        }
+    }, [data]);
+
     if (isLoading)
         return (
             <div className="justify-center items-center min-h-[60vh]">
@@ -59,11 +66,8 @@ export default function ArticleDetailPage() {
                             <div className="bg-white border border-gray-200 rounded-xl shadow-sm p-4 w-full">
                                 <div className="flex items-center justify-between">
                                     <div className="flex items-center gap-2">
-                                        <span className="font-medium text-sm text-gray-800">{comment.username ? comment.username : "Utilisateur"}</span>
-                                        <span className="text-xs text-gray-500">
-                    {new Date(key).toLocaleDateString()}
-                  </span>
-
+                                        <span className="font-medium text-sm text-gray-800">{comment.username || "Utilisateur"}</span>
+                                        <span className="text-xs text-gray-500">{new Date(key).toLocaleDateString()}</span>
                                     </div>
                                     <div className="text-gray-400 text-sm cursor-pointer hover:text-gray-600">⋯</div>
                                 </div>
@@ -85,6 +89,30 @@ export default function ArticleDetailPage() {
                 );
             });
     };
+
+    const handleLike = async () => {
+        if (!session?.user?.id) {
+            createNotification({ type: "warning", message: "Tu dois te connecter pour liker cet article !" });
+            return;
+        }
+
+        try {
+            // Vérifier si l'utilisateur a déjà liké cet article
+            const res = await ky.post(`/api/articles/${id}/likes`);
+            const json = await res.json();
+
+            if (res.status === 400) {
+                createNotification({ type: "warning", message: "Tu as déjà liké cet article !" });
+            } else {
+                // Mettre à jour le nombre de likes après avoir liké
+                setLikes(json.likes.length);  // Ici json.likes devrait être un tableau d'IDs d'utilisateurs
+            }
+        } catch (err: any) {
+            createNotification({ type: "error", message: "Erreur lors du like de l'article" });
+        }
+    };
+
+
     return (
         <main className="px-4 sm:px-6 md:px-8 lg:px-10 m-2 mt-6 mx-auto">
             {/* Article */}
@@ -99,8 +127,8 @@ export default function ArticleDetailPage() {
                             key={i}
                             className="text-sm px-2 py-1 bg-green-100 text-green-800 rounded-full"
                         >
-              #{tag}
-            </span>
+                            #{tag}
+                        </span>
                     ))}
                 </div>
                 <div className="ql light-content bg-green-50 rounded-xl p-2 prose prose-green max-w-none mb-10">
@@ -125,29 +153,26 @@ export default function ArticleDetailPage() {
                                 if (!commentContent.trim()) return;
                                 try {
                                     await ky.post(`/api/articles/${id}/comments`, {
-                                        json: {
-                                            content: commentContent,
-                                            parent: parentId,
-                                        },
+                                        json: { content: commentContent, parent: parentId },
                                     });
                                     setCommentContent("");
                                     setParentId(null);
                                     setAlert("");
-                                    createNotification({type: "success", message: "C'est fait Bébou!"});
+                                    createNotification({ type: "success", message: "C'est fait Bébou!" });
                                     mutate();
                                 } catch (err: any) {
                                     const message = await err.response?.json();
-                                    createNotification({type: "error", message: message?.message || "Erreur lors de l'envoi du commentaire"});
+                                    createNotification({ type: "error", message: message?.message || "Erreur lors de l'envoi du commentaire" });
                                 }
                             }}
                         >
-      <textarea
-          value={commentContent}
-          onChange={(e) => setCommentContent(e.target.value)}
-          placeholder="Exprime-toi… on t'écoute 👀"
-          className="w-full p-4 text-sm border-0 border-b border-green-100 focus:ring-0 rounded-t-xl"
-          rows={4}
-      />
+                            <textarea
+                                value={commentContent}
+                                onChange={(e) => setCommentContent(e.target.value)}
+                                placeholder="Exprime-toi… on t'écoute 👀"
+                                className="w-full p-4 text-sm border-0 border-b border-green-100 focus:ring-0 rounded-t-xl"
+                                rows={4}
+                            />
                             {alert && <p className="px-4 pt-1 text-red-500 text-sm">{alert}</p>}
                             {parentId && (
                                 <div className="px-4 py-2 text-xs text-gray-500 flex items-center justify-between">
@@ -177,6 +202,16 @@ export default function ArticleDetailPage() {
                     )}
                 </div>
             </section>
+
+            {/* Like button */}
+            <div className="mt-6 flex justify-between items-center">
+                <button
+                    onClick={handleLike}
+                    className="bg-green-700 text-white px-4 py-2 rounded-md hover:bg-green-800 transition"
+                >
+                    ❤️ {likes} Likes
+                </button>
+            </div>
         </main>
     );
 }
