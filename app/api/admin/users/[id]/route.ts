@@ -73,4 +73,27 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
         return NextResponse.json({ message: 'Erreur serveur', error: error.message }, { status: 500 });
     }
 }
+export async function DELETE(req: NextRequest, { params }: { params: { id: string } }) {
+    try {
+        const userId = params.id;
 
+        // Vérifiez si l'utilisateur existe avant de le supprimer
+        const user = await prisma.user.findUnique({
+            where: { id: userId },
+        });
+
+        if (!user) {
+            return NextResponse.json({ message: "Utilisateur non trouvé" }, { status: 404 });
+        }
+
+        // Suppression de l'utilisateur
+        await prisma.user.delete({
+            where: { id: userId },
+        });
+
+        return NextResponse.json({ message: "Utilisateur supprimé avec succès" }, { status: 200 });
+    } catch (error) {
+        console.error(error);
+        return NextResponse.json({ message: "Erreur serveur", error: error.message }, { status: 500 });
+    }
+}
