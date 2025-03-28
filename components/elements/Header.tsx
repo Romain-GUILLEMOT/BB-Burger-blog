@@ -18,7 +18,7 @@ export default function Header() {
                         <div className="flex justify-between items-center py-4">
                             {/* Logo de la marque */}
                             <a href="/" className="flex-shrink-0">
-                                <img className="h-10 sm:h-12" src="https://assets.romain-guillemot.dev/greenlaglogo.webp" alt="GreenLag Logo" />
+                                <img className="h-10 sm:h-12" src="https://assets.romain-guillemot.dev/greenlagg/greenlaggwhite.png" alt="GreenLag Logo" />
                             </a>
 
                             {/* Menu desktop */}

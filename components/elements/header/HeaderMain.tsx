@@ -7,8 +7,8 @@ export default function HeaderMain() {
         <section className="w-full min-h-screen flex flex-col justify-between bg-gradient-to-br from-green-100 via-green-400 to-green-700 px-6 pt-10 pb-8 rounded-b-3xl">
             <header className="flex justify-between items-center mb-12">
                 <div className="flex items-center gap-2">
-                    <div className="w-6 h-6 rounded-full bg-black/80" />
-                    <span className="text-lg font-semibold">Radiant</span>
+                    <img src={"https://assets.romain-guillemot.dev/greenlagg/greenlagg_full.webp"} className="h-10 sm:h-12 w-auto" />
+
                 </div>
                 <nav className="flex gap-6 text-sm text-black font-medium">
                     <Link href="/">Accueil</Link>
@@ -26,24 +26,66 @@ export default function HeaderMain() {
                     Un blog dédié au numérique responsable : actus, conseils et réflexions pour un monde digital plus durable.
                 </p>
                 <div className="flex justify-center gap-4">
-                    <button className="bg-black text-white px-6 py-3 rounded-full font-semibold text-sm hover:bg-gray-900 transition">
-                        Get started
-                    </button>
-                    <button className="bg-white border border-gray-300 text-black px-6 py-3 rounded-full font-semibold text-sm hover:bg-gray-100 transition">
-                        See pricing
-                    </button>
+                    <Link  href={"/articles"}  className="bg-black text-white px-6 py-3 rounded-full font-semibold text-sm hover:bg-gray-900 transition">
+                        Articles
+                    </Link>
+                    <Link href={"/a-propos"} className="bg-white border border-gray-300 text-black px-6 py-3 rounded-full font-semibold text-sm hover:bg-gray-100 transition">
+                        A propos
+                    </Link>
                 </div>
             </div>
 
             <footer className="mt-16 flex justify-center gap-6 flex-wrap">
-                {Array.from({ length: 10 }).map((_, i) => (
                     <img
-                        key={i}
-                        src="https://assets.ozlaloc.fr/logo/logo_full_transparent.webp"
+                        src="https://assets.romain-guillemot.dev/greenlagg/logo/1.png"
                         alt="Ozlaloc"
                         className="h-8"
                     />
-                ))}
+                <img
+                    src="https://assets.romain-guillemot.dev/greenlagg/logo/2.png"
+                    alt="Ozlaloc"
+                    className="h-8"
+                />
+                <img
+                    src="https://assets.romain-guillemot.dev/greenlagg/logo/3.png"
+                    alt="Ozlaloc"
+                    className="h-8"
+                />
+                <img
+                    src="https://assets.romain-guillemot.dev/greenlagg/logo/4.png"
+                    alt="Ozlaloc"
+                    className="h-8"
+                />
+                <img
+                    src="https://assets.romain-guillemot.dev/greenlagg/logo/5.png"
+                    alt="Ozlaloc"
+                    className="h-8"
+                />
+                <img
+                    src="https://assets.romain-guillemot.dev/greenlagg/logo/6.png"
+                    alt="Ozlaloc"
+                    className="h-8"
+                />
+                <img
+                    src="https://assets.romain-guillemot.dev/greenlagg/logo/7.png"
+                    alt="Ozlaloc"
+                    className="h-8"
+                />
+                <img
+                    src="https://assets.romain-guillemot.dev/greenlagg/logo/8.png"
+                    alt="Ozlaloc"
+                    className="h-8"
+                />
+                <img
+                    src="https://assets.romain-guillemot.dev/greenlagg/logo/9.png"
+                    alt="Ozlaloc"
+                    className="h-8"
+                />
+                <img
+                    src="https://assets.romain-guillemot.dev/greenlagg/logo/10.png"
+                    alt="Ozlaloc"
+                    className="h-8"
+                />
             </footer>
         </section>
     );
