@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
+import bcryptjs from "bcryptjs"; // Utilisation de bcryptjs au lieu de bcrypt
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
@@ -31,6 +32,13 @@ export async function POST(req: Request) {
     try {
         const { username, first_name, last_name, email, password } = await req.json();
 
+        // Cryptage du mot de passe si celui-ci est fourni
+        let hashedPassword = undefined;
+        if (password) {
+            const salt = await bcryptjs.genSalt(10); // Générer un salt
+            hashedPassword = await bcryptjs.hash(password, salt); // Crypter le mot de passe
+        }
+
         // Mise à jour des données utilisateur
         const updatedUser = await prisma.user.update({
             where: { email: session.user?.email || "" },
@@ -39,7 +47,8 @@ export async function POST(req: Request) {
                 first_name,
                 last_name,
                 email,
-                password, // Mettez à jour le mot de passe si fourni
+                password: hashedPassword, // Mettre à jour le mot de passe uniquement s'il a été fourni
+                updatedAt: new Date(), // Mise à jour de la date de modification
             },
         });
 
