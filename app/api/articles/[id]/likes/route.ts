@@ -2,12 +2,14 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import { getServerSession } from "next-auth";
+import authOptions from "@/lib/auth";
+import createNotification from "@/components/elements/Notification"; // Assurez-vous d'importer la fonction pour créer des notifications
 
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const session = await getServerSession();
+        const session = await getServerSession(authOptions);
         if (!session?.user) {
             return NextResponse.json({ message: "Non autorisé" }, { status: 401 });
         }
@@ -29,6 +31,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
         // Vérifier si l'utilisateur a déjà liké l'article
         if (likes.includes(userId)) {
+            // Afficher une notification "Déjà liké"
+            createNotification({ type: "warning", message: "Tu as déjà liké cet article !" });
             return NextResponse.json({ message: "Déjà liké" }, { status: 400 });
         }
 
@@ -38,7 +42,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         }
 
         // Ajouter l'ID de l'utilisateur au tableau des likes de l'article
-        likes = [...likes, userId]; // Ajoute l'ID de l'utilisateur au tableau des likes
+        likes.push(userId); // Utiliser push pour ajouter l'ID de l'utilisateur au tableau des likes
 
         // Filtrer les éventuelles valeurs undefined dans le tableau
         const filteredLikes = likes.filter(Boolean);
@@ -48,7 +52,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
             where: { slug },
             data: {
                 likes: {
-                    set: filteredLikes, // Met à jour les likes avec le tableau filtré
+                    push: filteredLikes, // Utiliser push pour ajouter à un tableau existant
                 },
             },
         });

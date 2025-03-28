@@ -2,8 +2,14 @@
 
 import Link from "next/link";
 import { FaFacebook, FaTwitter, FaInstagram, FaLinkedin } from "react-icons/fa";
+import React from "react";
+import {usePathname} from "next/navigation";
 
 const Footer = () => {
+    const pathname = usePathname();
+
+    if (["/auth/register", "/auth/login", "/"].includes(pathname) || pathname.startsWith("/admin")) return <></>;
+
     return (
         <footer className="bg-green-700 text-white pt-8 pb-4 px-4 mt-16 rounded-t-[40px] shadow-lg">
             <div className="max-w-md mx-auto text-center">

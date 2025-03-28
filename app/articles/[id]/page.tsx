@@ -103,10 +103,8 @@ export default function ArticleDetailPage() {
 
             if (res.status === 400) {
                 createNotification({ type: "warning", message: "Tu as déjà liké cet article !" });
-            } else {
-                // Mettre à jour le nombre de likes après avoir liké
-                setLikes(json.likes.length);  // Ici json.likes devrait être un tableau d'IDs d'utilisateurs
             }
+            mutate();
         } catch (err: any) {
             createNotification({ type: "error", message: "Erreur lors du like de l'article" });
         }
@@ -144,7 +142,7 @@ export default function ArticleDetailPage() {
                 <div className="mb-10 bg-white border border-green-200 rounded-xl shadow-sm">
                     {!session?.user?.id ? (
                         <div className="p-4 text-sm text-red-600">
-                            Tu dois <Link href="/auth/signin" className="underline text-green-700 hover:text-green-900">te connecter</Link> pour commenter.
+                            Tu dois <Link href="/auth/login" className="underline text-green-700 hover:text-green-900">te connecter</Link> pour commenter.
                         </div>
                     ) : (
                         <form
