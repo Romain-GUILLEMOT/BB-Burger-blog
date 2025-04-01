@@ -1,142 +1,238 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
+import {
+    FiTrash2,
+    FiChevronDown,
+    FiChevronUp,
+    FiMessageCircle,
+} from "react-icons/fi";
 import BouttonElement from "@/components/elements/BouttonElement";
-import { FiTrash2 } from "react-icons/fi";
+
+// ✅ Notification toast
+const notify = (message, type = "success") => {
+    const color =
+        type === "success"
+            ? "bg-green-100 text-green-800"
+            : "bg-red-100 text-red-800";
+
+    const toast = document.createElement("div");
+    toast.className = `fixed top-5 right-5 z-50 px-4 py-2 rounded-xl shadow-lg text-sm font-medium ${color} animate-fadeIn`;
+    toast.innerText = message;
+
+    document.body.appendChild(toast);
+
+    setTimeout(() => {
+        toast.classList.add("opacity-0");
+        setTimeout(() => document.body.removeChild(toast), 500);
+    }, 2500);
+};
 
 export default function AdminArticles() {
-    const [articles, setArticles] = useState<any[]>([]); // Liste des articles
-    const [loading, setLoading] = useState(true); // Statut de chargement
-    const [error, setError] = useState<string | null>(null); // Gestion des erreurs
-    const [page, setPage] = useState(1); // Page actuelle
-    const [total, setTotal] = useState(0); // Total des articles
-    const [limit] = useState(10); // Limite d'articles par page
-    const [search, setSearch] = useState(""); // Recherche
+    const [articles, setArticles] = useState([]);
+    const [comments, setComments] = useState({});
+    const [visibleComments, setVisibleComments] = useState({});
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState(null);
+    const [search, setSearch] = useState("");
 
-    // Charger les articles avec pagination et recherche
     useEffect(() => {
-        const fetchArticles = async () => {
+        const fetchAll = async () => {
             try {
-                const response = await fetch(`/api/articles?page=${page}&limit=${limit}&search=${search}`);
-                if (!response.ok) {
-                    throw new Error("Erreur de récupération des articles");
-                }
-                const data = await response.json();
+                const res = await fetch(`/api/articles?search=${search}`);
+                if (!res.ok) throw new Error("Erreur récupération articles");
+                const data = await res.json();
                 setArticles(data.articles);
-                setTotal(data.total);
-                setLoading(false);
-            } catch (err: any) {
+            } catch (err) {
+                console.error(err);
                 setError(err.message);
+            } finally {
                 setLoading(false);
             }
         };
+        fetchAll();
+    }, [search]);
 
-        fetchArticles();
-    }, [page, limit, search]); // Recharger les articles lorsque la page, la limite ou la recherche change
+    const fetchCommentsForArticle = async (articleId) => {
+        const isVisible = visibleComments[articleId];
 
-    // Fonction pour supprimer un article
-    const handleDelete = async (id: string) => {
-        if (!confirm("Voulez-vous vraiment supprimer cet article ?")) return;
+        if (isVisible) {
+            setVisibleComments((prev) => ({ ...prev, [articleId]: false }));
+            return;
+        }
 
         try {
-            const response = await fetch(`/api/articles/${id}`, {
-                method: "DELETE",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-                body: JSON.stringify({ id }),
-            });
-
-            const data = await response.json();
-            if (!response.ok) {
-                throw new Error(data.message || "Une erreur est survenue lors de la suppression de l'article");
-            }
-
-            setArticles((prevArticles) => prevArticles.filter((article) => article.id !== id));
-            alert("Article supprimé avec succès");
-        } catch (error: any) {
-            console.error("Erreur lors de la suppression:", error);
-            alert("Une erreur est survenue lors de la suppression de l'article.");
+            const res = await fetch(`/api/admin/comments?articleId=${articleId}`);
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Erreur");
+            setComments((prev) => ({ ...prev, [articleId]: data.comments || [] }));
+            setVisibleComments((prev) => ({ ...prev, [articleId]: true }));
+        } catch (err) {
+            console.error("Erreur chargement commentaires:", err);
         }
     };
 
+    const handleDeleteArticle = async (articleId) => {
+        if (!confirm("Confirmer la suppression de l'article ?")) return;
 
-
-
-    const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setSearch(e.target.value);
+        try {
+            const res = await fetch("/api/admin/articles", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ id: articleId }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Erreur suppression article");
+            setArticles((prev) => prev.filter((a) => a.id !== articleId));
+            const newComments = { ...comments };
+            delete newComments[articleId];
+            setComments(newComments);
+            notify("Article supprimé avec succès ✅");
+        } catch (err) {
+            console.error("Suppression article échouée:", err);
+            notify("Erreur lors de la suppression ❌", "error");
+        }
     };
 
-    if (loading) {
-        return <p>Chargement des articles...</p>;
-    }
+    const handleDeleteComment = async (commentId, articleId) => {
+        if (!confirm("Supprimer ce commentaire ?")) return;
 
-    if (error) {
-        return <p className="text-red-500">Erreur: {error}</p>;
-    }
+        try {
+            const res = await fetch("/api/admin/comments", {
+                method: "DELETE",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ commentId, articleId }),
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data.message || "Erreur suppression commentaire");
+            const updated = comments[articleId].filter((c) => c.id !== commentId);
+            setComments((prev) => ({ ...prev, [articleId]: updated }));
+            notify("Commentaire supprimé 💬");
+        } catch (err) {
+            console.error("Erreur suppression commentaire:", err);
+            notify("Erreur lors de la suppression du commentaire ❌", "error");
+        }
+    };
 
     return (
-        <div className="p-6">
-            <h1 className="text-2xl font-bold mb-4">Gestion des Articles</h1>
+        <div className="p-6 max-w-5xl mx-auto bg-green-50 min-h-screen rounded-xl">
+            <h1 className="text-3xl font-bold mb-6 text-green-700">
+                GreenLagg Admin · Articles
+            </h1>
 
-            {/* Zone de recherche */}
             <input
                 type="text"
                 value={search}
-                onChange={handleSearchChange}
-                placeholder="Rechercher des articles..."
-                className="p-2 border border-gray-300 rounded mb-4"
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="🔍 Rechercher un article..."
+                className="w-full px-4 py-3 border border-green-300 rounded-xl mb-6 shadow-sm focus:outline-none focus:ring-2 focus:ring-green-500 bg-white"
             />
 
-            <div className="overflow-x-auto">
-                {articles.length > 0 ? (
-                    <table className="min-w-full border-collapse border border-gray-300">
-                        <thead>
-                        <tr className="bg-gray-100">
-                            <th className="border border-gray-300 px-4 py-2">ID</th>
-                            <th className="border border-gray-300 px-4 py-2">Titre</th>
-                            <th className="border border-gray-300 px-4 py-2">Auteur</th>
-                            <th className="border border-gray-300 px-4 py-2">Actions</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        {articles.map((article) => (
-                            <tr key={article.id} className="border border-gray-300">
-                                <td className="border border-gray-300 px-4 py-2">{article.id}</td>
-                                <td className="border border-gray-300 px-4 py-2">{article.title}</td>
-                                <td className="border border-gray-300 px-4 py-2">{article.authorId}</td>
-                                <td className="border border-gray-300 px-4 py-2">
-                                    <BouttonElement variant="destructive" onClick={() => handleDelete(article.id)}>
-                                        <FiTrash2 className="w-4 h-4" />
-                                    </BouttonElement>
-                                </td>
-                            </tr>
-                        ))}
-                        </tbody>
-                    </table>
-                ) : (
-                    <p className="text-gray-500">Aucun article disponible.</p>
-                )}
-            </div>
+            {loading ? (
+                <p className="text-center text-green-700">Chargement...</p>
+            ) : error ? (
+                <p className="text-center text-red-500">Erreur : {error}</p>
+            ) : articles.length === 0 ? (
+                <p className="text-center text-green-600">Aucun article trouvé.</p>
+            ) : (
+                articles.map((article) => (
+                    <div
+                        key={article.id}
+                        className="bg-white border border-green-200 shadow rounded-2xl p-5 mb-8 transition hover:shadow-md"
+                    >
+                        <div className="flex justify-between items-start mb-3">
+                            <div>
+                                <h2 className="text-xl font-semibold text-green-800">
+                                    {article.title}
+                                </h2>
+                                <p className="text-sm text-gray-500">
+                                    👤 Auteur : {article.authorId}
+                                </p>
+                            </div>
+                            <div className="flex gap-2">
+                                <button
+                                    onClick={() => fetchCommentsForArticle(article.id)}
+                                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-white font-medium text-sm transition ${
+                                        visibleComments[article.id]
+                                            ? "bg-green-700 hover:bg-green-800"
+                                            : "bg-green-600 hover:bg-green-700"
+                                    }`}
+                                >
+                                    {visibleComments[article.id] ? (
+                                        <FiChevronUp className="w-4 h-4" />
+                                    ) : (
+                                        <FiMessageCircle className="w-4 h-4" />
+                                    )}
+                                    {visibleComments[article.id] ? "Masquer" : "Commentaires"}
+                                </button>
 
-            {/* Pagination */}
-            <div className="flex justify-between mt-4">
-                <button
-                    onClick={() => setPage(page > 1 ? page - 1 : page)}
-                    disabled={page === 1}
-                    className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-                >
-                    Précédent
-                </button>
-                <span>{`Page ${page} / ${Math.ceil(total / limit)}`}</span>
-                <button
-                    onClick={() => setPage(page < Math.ceil(total / limit) ? page + 1 : page)}
-                    disabled={page === Math.ceil(total / limit)}
-                    className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
-                >
-                    Suivant
-                </button>
-            </div>
+                                <button
+                                    onClick={() => handleDeleteArticle(article.id)}
+                                    className="bg-red-500 hover:bg-red-600 text-white px-3 py-1.5 rounded-full flex items-center gap-2 text-sm font-medium"
+                                >
+                                    <FiTrash2 className="w-4 h-4" />
+                                    Supprimer
+                                </button>
+                            </div>
+                        </div>
+
+                        {visibleComments[article.id] && (
+                            <div className="mt-4">
+                                <h3 className="text-green-700 font-semibold mb-2">
+                                    💬 Commentaires
+                                </h3>
+                                {comments[article.id]?.length > 0 ? (
+                                    <ul className="space-y-2">
+                                        {comments[article.id].map((comment) => (
+                                            <li
+                                                key={comment.id}
+                                                className="bg-green-50 border border-green-200 rounded-xl px-4 py-2 flex justify-between items-center"
+                                            >
+                                                <div>
+                                                    <p className="text-sm text-gray-800">
+                                                        {comment.content}
+                                                    </p>
+                                                    <p className="text-xs text-green-500">
+                                                        👤 {comment.username || "Utilisateur inconnu"}
+                                                    </p>
+                                                </div>
+                                                <button
+                                                    onClick={() => handleDeleteComment(comment.id, article.id)}
+                                                    className="text-red-500 hover:text-red-700"
+                                                >
+                                                    <FiTrash2 className="w-4 h-4" />
+                                                </button>
+                                            </li>
+                                        ))}
+                                    </ul>
+                                ) : (
+                                    <p className="text-sm text-gray-400 italic">
+                                        Aucun commentaire.
+                                    </p>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                ))
+            )}
+
+            {/* Styles toast */}
+            <style jsx global>{`
+                @keyframes fadeIn {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-10px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+                .animate-fadeIn {
+                    animation: fadeIn 0.3s ease forwards;
+                    transition: opacity 0.5s ease;
+                }
+            `}</style>
         </div>
     );
 }

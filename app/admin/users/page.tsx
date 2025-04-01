@@ -73,7 +73,7 @@ export default function AdminUsersPage() {
 
     return (
         <main className="p-4">
-            <h1 className="text-4xl font-bold mb-6">Gestion des utilisateurs</h1>
+            <h1 className="text-3xl font-bold mb-6">Gestion des utilisateurs</h1>
             <table className="w-full table-auto border-collapse">
                 <thead>
                 <tr className="border-b">
@@ -83,9 +83,10 @@ export default function AdminUsersPage() {
                     <th className="px-4 py-2 text-left">Actions</th>
                 </tr>
                 </thead>
-                <tbody>{users.map((user) => (
+                <tbody>
+                {users.map((user) => (
                     <tr key={user.id} className="border-b">
-                        <td className="px-4 py-2">{user.username}</td>
+                        <td className="px-4 py-2">{user.username}</td> {/* Affichage du nom d'utilisateur */}
                         <td className="px-4 py-2">{user.email}</td>
                         <td className="px-4 py-2">
                             <select
@@ -107,7 +108,8 @@ export default function AdminUsersPage() {
                             </button>
                         </td>
                     </tr>
-                ))}</tbody>
+                ))}
+                </tbody>
             </table>
         </main>
     );
