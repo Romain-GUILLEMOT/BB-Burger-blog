@@ -1,13 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import {authOptions} from "@/lib/auth";
+import {auth, authOptions} from "@/auth";
 
 const prisma = new PrismaClient();
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await auth();
 
         if (!session || !session.user?.id) {
             return NextResponse.json({ message: "Non autorisé" }, { status: 401 });

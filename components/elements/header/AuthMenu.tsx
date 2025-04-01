@@ -1,22 +1,47 @@
+"use client";
 import { Menu, Transition } from "@headlessui/react";
-import { Fragment } from "react";
+import {Fragment, useEffect, useState} from "react";
 import { signOut, useSession } from "next-auth/react";
 import {UserCircleIcon} from "@heroicons/react/24/solid";
-
+import Image from "next/image";
 
 export default function AuthMenu() {
-    const { data: session } = useSession();
+    const [isAdmin, setIsAdmin] = useState<boolean>(false)
+    const [isAuthor, setIsAuthor] = useState<boolean>(false)
+    const { data: session, status } = useSession();
     const user = session?.user;
 
+    useEffect(() => {
+        const checkUserRole = async () => {
+            if (status === "loading") return;
+            if (session?.user?.role === "ADMIN") {
+                setIsAdmin(true);
+                setIsAuthor(true);
+            }
+            if(session?.user?.role === "AUTHOR") {
+                setIsAuthor(true);
+            }
+        };
+
+        checkUserRole();
+    }, [status, session]);
     return (
         <div className="hidden md:flex items-center space-x-4">
             {user ? (
                 <Menu as="div" className="relative">
                     <Menu.Button className="flex items-center space-x-2 text-white hover:text-yellow-400 font-medium transition-colors duration-200">
-                        <img
-                            src={`https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email)}&background=random&color=fff&size=40`}
+                        <Image
+                            src={
+                                user.image
+                                    ? user.image
+                                    : `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || user.email || "UU")}&background=random&color=fff&size=40`
+                            }
                             alt="Avatar"
-                            className="h-8 w-8 rounded-full"
+                            width={32}
+                            height={32}
+                            className="h-8 w-8 rounded-full object-cover"
+                            unoptimized // important pour les URLs externes non autorisées dans next.config.js
+                            referrerPolicy="no-referrer"
                         />
                         <span>{user.name || "Utilisateur"}</span>
                     </Menu.Button>
@@ -44,7 +69,7 @@ export default function AuthMenu() {
                                 )}
                             </Menu.Item>
 
-                            {user.role === 2 && (
+                            {isAdmin && (
                                 <Menu.Item>
                                     {({ active }) => (
                                         <a
@@ -58,7 +83,20 @@ export default function AuthMenu() {
                                     )}
                                 </Menu.Item>
                             )}
-
+                            {isAuthor && (
+                                <Menu.Item>
+                                    {({ active }) => (
+                                        <a
+                                            href="/articles/create"
+                                            className={`block px-4 py-2 text-gray-800 ${
+                                                active ? "bg-gray-100" : ""
+                                            }`}
+                                        >
+                                            Créer un article
+                                        </a>
+                                    )}
+                                </Menu.Item>
+                            )}
                             <Menu.Item>
                                 {({ active }) => (
                                     <button

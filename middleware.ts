@@ -1,27 +1,20 @@
-import { NextResponse } from 'next/server';
-import type { NextRequest } from 'next/server';
-import { getToken } from 'next-auth/jwt';
+import { NextResponse } from "next/server"
+import type { NextRequest } from "next/server"
+
 
 export async function middleware(req: NextRequest) {
-    const token = await getToken({ req, secret: process.env.NEXTAUTH_SECRET });
-
-    if (token) {
-        if (req.nextUrl.pathname.startsWith('/auth/')) {
-            return NextResponse.redirect(new URL('/dashboard', req.url));
-        }
-    } else {
-        if (req.nextUrl.pathname.startsWith('/dashboard') || req.nextUrl.pathname.startsWith('/admin/')) {
-            return new Response('Unauthorized', { status: 401 });
-        }
+    const pathname = req.nextUrl.pathname
+    if ((!req.cookies.get('authjs.csrf-token') || !req.cookies.get('authjs.session-token')) && (pathname.startsWith("/admin") || pathname.startsWith("/dashboard"))) {
+        return NextResponse.redirect(new URL("/auth/login", req.url))
     }
 
-    return NextResponse.next();
+    if (req.cookies.get('authjs.csrf-token') && req.cookies.get('authjs.session-token') && pathname.startsWith("/auth")) {
+        return NextResponse.redirect(new URL("/dashboard", req.url))
+    }
+
+    return NextResponse.next()
 }
 
 export const config = {
-    matcher: [
-        '/auth/:path*',
-        '/dashboard',
-        '/admin/:path*',
-    ],
-};
+    matcher: ["/dashboard/:path*", "/admin/:path*", "/auth/:path*"],
+}

@@ -4,13 +4,16 @@ import {PhoneIcon} from "@heroicons/react/16/solid";
 import {XMarkIcon} from "@heroicons/react/20/solid";
 import Loading from "@/components/elements/Loading";
 import ContactDialog from "@/components/elements/ContactDialog";
+import {usePathname} from "next/navigation";
 
 export default function ContactLayout() {
     const [isContactOpen, setContactOpen] = useState<boolean>(false);
     const [isContactIcon, setContactIcon] = useState<boolean>(true);
+    const pathname = usePathname()
+
     useEffect(() => {
         window.scrollTo(0, 0);
-    }, [location.pathname]);
+    }, [pathname]);
     return (
         <>
             {/* Bouton rond en bas à droite */}

@@ -10,18 +10,24 @@ datasource db {
 /// 🎭 **Utilisateur avec SSO & Profil détaillé**
 model User {
   id         String    @id @default(auto()) @map("_id") @db.ObjectId
-  username   String    @unique
-  email      String    @unique
+  email      String?    @unique
   password   String? // Nullable pour SSO
   role       Role      @default(USER) // Enum : User, Auteur, Admin
-  profile    Json? // Remplace `Profile`
+  image     String?
+  emailVerified DateTime? // Nullable pour SSO
+  profile    Json?  // Remplace `Profile`
   social     Json? // Remplace `Social`
   sso        Json? // Remplace `SSO`
-  first_name String
-  last_name  String
+  name String?
   createdAt  DateTime  @default(now())
   updatedAt  DateTime  @default(now())
   deletedAt  DateTime?
+  accounts      Account[]
+  sessions      Session[]
+  // Optional for WebAuthn support
+  Authenticator Authenticator[]
+
+  @@map("users")
 }
 
 /// 📑 **Article avec Commentaires intégrés**
@@ -55,6 +61,65 @@ model Stats {
   updatedAt DateTime
 }
 
+model Account {
+  id                String  @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String  @db.ObjectId
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String? @db.String
+  access_token      String? @db.String
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String? @db.String
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Session {
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
+  sessionToken String   @unique
+  userId       String   @db.ObjectId
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model VerificationToken {
+  id         String   @id @default(auto()) @map("_id") @db.ObjectId
+  identifier String
+  token      String
+  expires    DateTime
+
+  @@unique([identifier, token])
+  @@map("verification_tokens")
+}
+
+// Optional for WebAuthn support
+model Authenticator {
+  credentialID         String  @id @map("_id")
+  userId               String  @db.ObjectId
+  providerAccountId    String
+  credentialPublicKey  String
+  counter              Int
+  credentialDeviceType String
+  credentialBackedUp   Boolean
+  transports           String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, credentialID])
+}
 enum Role {
   USER
   AUTHOR

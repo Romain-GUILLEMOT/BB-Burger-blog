@@ -1,6 +1,6 @@
 "use client";
 
-import {useEffect, useState} from "react";
+import React, {useEffect, useState} from "react";
 import { Dialog } from "@headlessui/react";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Bars3Icon, UserIcon, DocumentTextIcon, ChartBarIcon, XMarkIcon } from "@heroicons/react/24/outline";
@@ -42,6 +42,9 @@ export default function RootLayout({
 
             if (session?.user?.role === "ADMIN") {
                 setIsAdmin(true);
+                if(pathname === '/admin' || pathname === '/admin/') {
+                    router.push("/admin/users");
+                }
             } else {
                 router.push("/");
             }
@@ -68,8 +71,7 @@ export default function RootLayout({
     );
 
     return (
-        <html lang="fr" className={`${geistSans.variable} ${geistMono.variable}`}>
-        <body className="antialiased bg-white">
+        <div className="antialiased bg-white">
         <div className="flex min-h-screen">
             {/* Sidebar mobile */}
             <Dialog
@@ -99,7 +101,10 @@ export default function RootLayout({
             {/* Sidebar desktop */}
             <aside className="hidden lg:flex lg:flex-col lg:w-64 lg:bg-white lg:p-6 lg:shadow-xl">
                 <h2 className="text-2xl font-bold mb-8 text-green-700">
-                    GreenLagg Admin
+                    <a href="/" className="flex-shrink-0 mx-auto">
+                        <img className="h-10 sm:h-12" src="https://assets.romain-guillemot.dev/greenlagg/greenlagg_full.webp" alt="GreenLag Logo" />
+                    </a>
+
                 </h2>
                 <nav className="space-y-2">
                     <SidebarItem name="Utilisateurs" href="/admin/users" Icon={UserIcon} />
@@ -115,7 +120,6 @@ export default function RootLayout({
                 {children}
             </main>
         </div>
-        </body>
-        </html>
+        </div>
     );
 }

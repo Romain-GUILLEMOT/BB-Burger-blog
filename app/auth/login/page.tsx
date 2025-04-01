@@ -12,6 +12,7 @@ export default function Login() {
     const [imgsrc, setLogosrc] = useState<string>("https://assets.romain-guillemot.dev/greenlaglogolong.webp");
     const [videosrc, setVideosrc] = useState<string>("https://assets.romain-guillemot.dev/bgvideogreenlag.mp4");
     const [showErrorCross, setShowErrorCross] = useState(false);
+
     const doom = new Audio("https://assets.romain-guillemot.dev/doom.mp3");
     const buzz = new Audio("https://assets.romain-guillemot.dev/buzz.mp3");
     const success = new Audio("https://assets.romain-guillemot.dev/success.mp3");
@@ -139,70 +140,13 @@ export default function Login() {
                         </div>
 
                         <div className="mt-10">
-                            <form onSubmit={formik.handleSubmit} className="space-y-6">
-                                <div>
-                                    <label htmlFor="email" className="block text-sm font-medium text-gray-900">Adresse e-mail</label>
-                                    <div className="mt-2">
-                                        <input
-                                            id="email"
-                                            name="email"
-                                            type="email"
-                                            value={formik.values.email}
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                            required
-                                            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1"
-                                        />
-                                    </div>
-                                </div>
 
-                                <div>
-                                    <label htmlFor="password" className="block text-sm font-medium text-gray-900">Mot de passe</label>
-                                    <div className="mt-2">
-                                        <input
-                                            id="password"
-                                            name="password"
-                                            type="password"
-                                            value={formik.values.password}
-                                            onChange={formik.handleChange}
-                                            onBlur={formik.handleBlur}
-                                            required
-                                            className="block w-full rounded-md bg-white px-3 py-1.5 text-base text-gray-900 outline outline-1"
-                                        />
-                                    </div>
-                                </div>
-
-                                {errorMessage && (
-                                    <p className="text-white bg-red-600 p-2 rounded-md text-sm text-center mt-2">
-                                        {errorMessage}
-                                    </p>
-                                )}
-
-                                <div>
-                                    <button
-                                        type="submit"
-                                        className={`flex w-full justify-center rounded-md px-3 py-1.5 text-sm font-semibold text-white shadow-sm ${
-                                            errorMessage ? "bg-red-700 animate-shake" : "bg-green-800 hover:bg-green-900"
-                                        }`}
-                                    >
-                                        Se connecter
-                                    </button>
-                                </div>
-                            </form>
-
-                            <div className="mt-10">
-                                <div className="relative">
-                                    <div aria-hidden="true" className="absolute inset-0 flex items-center">
-                                        <div className="w-full border-t border-gray-200" />
-                                    </div>
-                                    <div className="relative flex justify-center text-sm font-medium">
-                                        <span className={" px-6 text-gray-900"}>Ou connectez-vous avec</span>
-                                    </div>
-                                </div>
 
                                 <div className="mt-6 grid grid-cols-2 gap-4">
-                                    <a
-                                        href="#"
+                                    <button
+                                        onClick={async () => {
+                                            await signIn("google")
+                                        }}
                                         className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent"
                                     >
                                         <svg viewBox="0 0 24 24" aria-hidden="true" className="h-5 w-5">
@@ -224,10 +168,12 @@ export default function Login() {
                                             />
                                         </svg>
                                         <span className="font-semibold">Google</span>
-                                    </a>
+                                    </button>
 
-                                    <a
-                                        href="#"
+                                    <button
+                                        onClick={async () => {
+                                            await signIn("github")
+                                        }}
                                         className="flex w-full items-center justify-center gap-3 rounded-md bg-white px-3 py-2 text-sm font-semibold text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 hover:bg-gray-50 focus-visible:ring-transparent"
                                     >
                                         <svg fill="currentColor" viewBox="0 0 20 20" aria-hidden="true" className="size-5 fill-[#24292F]">
@@ -238,9 +184,18 @@ export default function Login() {
                                             />
                                         </svg>
                                         <span className="font-semibold">GitHub</span>
-                                    </a>
-                                </div>
+                                    </button>
                             </div>
+
+                                <img
+                                    onClick={async () => {
+                                        await signIn("osu")
+                                    }}
+                                    className="mt-4 hover:opacity-50 duration-300"
+                                    src="https://assets.romain-guillemot.dev/greenlagg/osu.png"
+                                    alt="osu! logo"
+                                />
+
                         </div>
                     </div>
                 </div>

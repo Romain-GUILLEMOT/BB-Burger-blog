@@ -1,14 +1,13 @@
 // api/admin/users/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
-import { getServerSession } from "next-auth";
-import authOptions from "@/lib/auth";
+import authOptions, {auth} from "@/auth";
 
 const prisma = new PrismaClient();
 
 export async function GET(req: NextRequest) {
     // Vérification de la session et du rôle ADMIN
-    const session = await getServerSession(authOptions);
+    const session = await auth();
 
     if (!session?.user || session.user.role !== "ADMIN") {
         return NextResponse.json({ message: "Non autorisé" }, { status: 403 });

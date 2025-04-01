@@ -60,8 +60,8 @@ export default function AdminStats() {
     if (error) return <p className="text-center text-red-600">❌ Erreur : {error}</p>;
 
     return (
-        <div className="min-h-screen p-8 bg-gray-100 text-gray-800">
-            <h1 className="text-4xl font-bold text-center mb-8">📊 Statistiques du site</h1>
+        <div className="min-h-screen p-8  text-gray-800">
+            <h1 className="text-4xl font-bold mb-8">📊 Statistiques du site</h1>
 
             {isAdmin && stats.stats.length > 0 ? (
                 <>

@@ -1,13 +1,12 @@
 import { NextResponse } from "next/server";
 import { PrismaClient } from "@prisma/client";
 import bcryptjs from "bcryptjs"; // Utilisation de bcryptjs au lieu de bcrypt
-import { getServerSession } from "next-auth";
-import { authOptions } from "@/lib/auth";
+import {auth} from "@/auth";
 
 const prisma = new PrismaClient();
 
 export async function GET() {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
     try {
@@ -26,7 +25,7 @@ export async function GET() {
 
 // Méthode POST pour mettre à jour les données de l'utilisateur
 export async function POST(req: Request) {
-    const session = await getServerSession(authOptions);
+    const session = await auth();
     if (!session) return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
 
     try {

@@ -1,9 +1,10 @@
 "use client";
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import { Disclosure } from '@headlessui/react';
 import {Bars3Icon, XMarkIcon} from "@heroicons/react/24/solid";
 import AuthMenu from "@/components/elements/header/AuthMenu";
 import { usePathname } from "next/navigation";
+import {useSession} from "next-auth/react";
 
 export default function Header() {
     const pathname = usePathname();
@@ -25,7 +26,7 @@ export default function Header() {
                             <div className="hidden md:flex space-x-8">
                                 <a href="/" className="text-white hover:text-yellow-400 font-medium transition-colors duration-200">Accueil</a>
                                 <a href="/articles" className="text-white hover:text-yellow-400 font-medium transition-colors duration-200">Articles</a>
-                                <a href="/apropos" className="text-white hover:text-yellow-400 font-medium transition-colors duration-200">À propos</a>
+                                <a href="/a-propos" className="text-white hover:text-yellow-400 font-medium transition-colors duration-200">À propos</a>
                             </div>
 
                           <AuthMenu/>
