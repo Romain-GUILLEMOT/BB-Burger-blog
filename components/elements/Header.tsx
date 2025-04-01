@@ -25,7 +25,7 @@ export default function Header() {
                             <div className="hidden md:flex space-x-8">
                                 <a href="/" className="text-white hover:text-yellow-400 font-medium transition-colors duration-200">Accueil</a>
                                 <a href="/articles" className="text-white hover:text-yellow-400 font-medium transition-colors duration-200">Articles</a>
-                                <a href="/apropos" className="text-white hover:text-yellow-400 font-medium transition-colors duration-200">À propos</a>
+                                <a href="/a-propos" className="text-white hover:text-yellow-400 font-medium transition-colors duration-200">À propos</a>
                             </div>
 
                           <AuthMenu/>
