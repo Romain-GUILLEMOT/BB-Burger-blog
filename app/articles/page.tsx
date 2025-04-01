@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useCallback } from "react";
-import BoutonElement from "@/components/elements/BouttonElement";
+import BouttonElement from "@/components/elements/BouttonElement";
 import { kyFetcher } from "@/lib/fetcher";
 import Loading from "@/components/elements/Loading";
 import debounce from "debounce";
@@ -158,12 +158,12 @@ export default function ArticleList() {
             {/* Bouton "Voir plus" */}
             <div className="flex justify-center mt-8">
                 {canLoadMore && !loading && (
-                    <BoutonElement
+                    <BouttonElement
                         onClick={handleVoirPlus}
                         className="px-4 py-2 rounded-md bg-green-600 text-green-600 hover:bg-green-700 hover:text-white border border-green-600 transition"
                     >
                         Voir plus
-                    </BoutonElement>
+                    </BouttonElement>
                 )}
             </div>
         </div>
