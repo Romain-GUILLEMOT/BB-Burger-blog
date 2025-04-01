@@ -1,86 +1,27 @@
 "use client";
 
-import { useFormik } from "formik";
 import { signIn } from "next-auth/react";
-import { useState, useEffect } from "react";
-import { XCircleIcon } from "@heroicons/react/24/solid";
+import {useState, useEffect, useRef} from "react";
 import Loading from "@/components/elements/Loading";
+import createNotification from "@/components/elements/Notification";
+
+const KONAMI_CODE = [
+    'ArrowUp', 'ArrowUp',
+    'ArrowDown', 'ArrowDown',
+    'ArrowLeft', 'ArrowRight',
+    'ArrowLeft', 'ArrowRight',
+    'b', 'a', 's' // bonus le "s" à la fin si tu veux un troll
+]
 
 export default function Login() {
-    const [errorMessage, setErrorMessage] = useState("");
     const [isLoaded, setIsLoaded] = useState(false);
-    const [imgsrc, setLogosrc] = useState<string>("https://assets.romain-guillemot.dev/greenlaglogolong.webp");
-    const [videosrc, setVideosrc] = useState<string>("https://assets.romain-guillemot.dev/bgvideogreenlag.mp4");
-    const [showErrorCross, setShowErrorCross] = useState(false);
+    const [konami, setKonami] = useState<boolean>(false)
 
     const doom = new Audio("https://assets.romain-guillemot.dev/doom.mp3");
     const buzz = new Audio("https://assets.romain-guillemot.dev/buzz.mp3");
     const success = new Audio("https://assets.romain-guillemot.dev/success.mp3");
+    const inputRef = useRef<string[]>([])
 
-    const formik = useFormik({
-        initialValues: {
-            email: "",
-            password: "",
-        },
-        validateOnChange: false,
-        validateOnBlur: false,
-        onSubmit: async (values) => {
-            setErrorMessage("");
-            try {
-                const signInResponse = await signIn("credentials", {
-                    redirect: false,
-                    email: values.email,
-                    password: values.password,
-                });
-
-
-                if (signInResponse?.error) {
-
-                    buzz.play();
-
-                    setTimeout(() => {
-                        setShowErrorCross(true);
-                    }, 1000);
-
-                    setTimeout(() => {
-                        setShowErrorCross(false);
-                        setVideosrc("https://assets.romain-guillemot.dev/fire.mp4");
-                        setLogosrc("https://assets.romain-guillemot.dev/redlaglogolong.webp");
-                        setErrorMessage("Identifiants incorrects.");
-                        doom.play();
-                    }, 2500);
-                } else {
-                    setErrorMessage("");
-                    setLogosrc("https://assets.romain-guillemot.dev/greenlaglogolong.webp");
-
-                    buzz.pause()
-                    doom.pause()
-                    success.play();
-
-
-                    setTimeout(() => {
-                        success.pause()
-                        window.location.href = "/dashboard";
-                    }, 1500 );
-                }
-            } catch (error) {
-                buzz.play();
-
-                setTimeout(() => {
-                    setShowErrorCross(true);
-                }, 1000);
-
-                setTimeout(() => {
-                    setShowErrorCross(false);
-                    setVideosrc("https://assets.romain-guillemot.dev/fire.mp4");
-                    setLogosrc("https://assets.romain-guillemot.dev/redlaglogolong.webp");
-
-                    setErrorMessage("Identifiants incorrects.");
-                    doom.play();
-                }, 2500);
-            }
-        }
-    });
 
     useEffect(() => {
 
@@ -105,6 +46,22 @@ export default function Login() {
             success.removeEventListener("canplaythrough", checkIfLoaded);
         };
     }, []);
+
+    useEffect(() => {
+        const handleKeyDown = (e: KeyboardEvent) => {
+            inputRef.current.push(e.key)
+            inputRef.current = inputRef.current.slice(-KONAMI_CODE.length)
+
+            if (inputRef.current.join(',') === KONAMI_CODE.join(',')) {
+                setKonami(true)
+                createNotification({type: "error", message: "Aperture Science ▒▒░Ξ∮⚠︎_⧉⧉{INIT.Φ512x}▒█𓂀⟟⧗//↯↯↯ SYSTEM BREΔK .v1⧸✖︎⩨𒐫𒀭🜛❖⨳⛧𓆣💾...∑ΣRΞBOOT?☣︎"})
+                inputRef.current = [] // reset après détection
+            }
+        }
+
+        window.addEventListener('keydown', handleKeyDown)
+        return () => window.removeEventListener('keydown', handleKeyDown)
+    })
     if (!isLoaded) {
         return (
             <Loading/>
@@ -112,31 +69,20 @@ export default function Login() {
     }
     return (
         <>
-            {showErrorCross && (
-                <div className="fixed inset-0 flex items-center justify-center bg-white z-50">
-                    <XCircleIcon className="w-64 h-64 text-red-600 animate-bounce animate-shake" />
-                </div>
-            )}
-            <div className={`flex min-h-screen ${errorMessage ? "bg-red-900" : "bg-white"}`}>
+            {!konami ? (
+            <div className={`flex min-h-screen bg-white`}>
                 {/* Formulaire de connexion */}
 
                 <div className="flex flex-1 flex-col justify-center px-4 py-12 sm:px-6 lg:flex-none lg:px-20 xl:px-24">
-                    <div className={`mx-auto w-full max-w-sm lg:w-96 p-12   ${errorMessage ? 'animate-shake bg-red-100 border-red-500' : 'bg-slate-100 border-slate-200'} shadow-lg rounded-lg`}>
+                    <div className={`mx-auto w-full max-w-sm lg:w-96 p-12   bg-slate-100 border-slate-200 shadow-lg rounded-lg`}>
                         <div>
                             <img
-                                alt="Votre Entreprise"
-                                key={imgsrc}
-                                src={imgsrc}
+                                alt="Grennlagg"
+                                src={"https://assets.romain-guillemot.dev/greenlagg/greenlagg_full.webp"}
                                 className="h-1/4 w-auto my-0 mx-auto margin-top-0" // Ajustement de la taille du logo et marges pour le placer bien en haut
                             />
                             <h2 className="mt-8 text-2xl font-bold tracking-tight text-gray-900">Connectez-vous</h2>
-                            <p className="mt-2 text-sm text-gray-500">
-                                Pas encore membre ?{' '}
-                                <a href="/auth/register" className={`font-semibold ${(errorMessage) ? 'text-red-700 hover:text-red-900 ' : 'text-green-700 hover:text-green-900 '}`}>
 
-                                Créez votre compte
-                                </a>
-                            </p>
                         </div>
 
                         <div className="mt-10">
@@ -202,11 +148,101 @@ export default function Login() {
 
                 {/* Vidéo de fond */}
                 <div className="relative hidden w-0 flex-1 lg:block">
-                    <video key={videosrc} autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
-                        <source src={videosrc} type="video/mp4" />
+                    <video autoPlay loop muted playsInline className="absolute inset-0 w-full h-full object-cover">
+                        <source src={"https://assets.romain-guillemot.dev/bgvideogreenlag.mp4"} type="video/mp4" />
                     </video>
                 </div>
             </div>
+            ): (
+                <>
+                <div className="h-full w-full bg-[#0f0f0f] text-green-400  p-6 shadow-xl flex flex-col md:flex-row gap-6 items-start">
+                    <div className="flex-1 overflow-auto">
+    <pre className="bg-[#111] p-4 rounded-lg overflow-auto text-sm leading-relaxed">
+      <code>
+{`float Q_rsqrt( float number )
+{
+    long i;
+    float x2, y;
+    const float threehalfs = 1.5F;
+
+    x2 = number * 0.5F;
+    y  = number;
+    i  = * ( long * ) &y;                        // evil floating point bit level hacking
+    i  = 0x5f3759df - ( i >> 1 );                // what the fuck?
+    y  = * ( float * ) &i;
+    y  = y * ( threehalfs - ( x2 * y * y ) );    // 1st iteration
+//  y  = y * ( threehalfs - ( x2 * y * y ) );    // 2nd iteration, this can be removed
+
+    return y;
+}`}
+      </code>
+    </pre>
+                    </div>
+
+                    <div className="md:w-1/3 flex justify-center items-center">
+                        <img
+                            src="https://assets.romain-guillemot.dev/greenlagg/hex.jpg"
+                            alt="Énigme hex Cyberpunk"
+                            className="rounded-lg shadow-lg max-w-full h-auto"
+                        />
+                    </div>
+
+                    <audio autoPlay loop className="hidden">
+                        <source src="https://assets.romain-guillemot.dev/greenlagg/portal.mp3" type="audio/mpeg" />
+                    </audio>
+                </div>
+                    <div className={'flex object-fill h-full w-full bg-black'}>
+
+        <div className="md:w-1/3 flex justify-center items-center">
+            <img
+                src="https://assets.romain-guillemot.dev/greenlagg/aperture.jpeg"
+                alt="Énigme hex Cyberpunk"
+                className="rounded-lg shadow-lg max-w-full h-auto"
+            />
+        </div>
+        <div className="md:w-2/3 flex justify-center items-center">
+            <img
+                src="https://assets.romain-guillemot.dev/greenlagg/qr.png"
+                alt="Énigme hex Cyberpunk"
+                className="rounded-lg shadow-lg h-64"
+            />
+        </div>
+        <div className="md:w-1/3 flex justify-center items-center">
+            <img
+                src="https://assets.romain-guillemot.dev/greenlagg/herobrine.webp"
+                alt="Énigme hex Cyberpunk"
+                className="rounded-lg shadow-lg max-w-full h-auto"
+            />
+        </div>
+    </div>
+                    <div className={'flex object-fill h-full w-full bg-black'}>
+
+                        <div className="md:w-1/3 flex justify-center items-center">
+                            <img
+                                src="https://assets.romain-guillemot.dev/greenlagg/subnautica.jpg"
+                                alt="Énigme hex Cyberpunk"
+                                className="rounded-lg shadow-lg max-w-full h-auto"
+                            />
+                        </div>
+                        <div className="md:w-2/3 flex justify-center items-center">
+                            <img
+                                src="https://assets.romain-guillemot.dev/greenlagg/aa.webp"
+                                alt="Énigme hex Cyberpunk"
+                                className="rounded-lg shadow-lg h-64"
+                            />
+                        </div>
+                        <div className="md:w-1/3 flex justify-center items-center">
+                            <img
+                                src="https://assets.romain-guillemot.dev/greenlagg/lav.png"
+                                alt="Énigme hex Cyberpunk"
+                                className="rounded-lg shadow-lg max-w-full h-auto"
+                            />
+                        </div>
+                    </div>
+
+                </>
+
+            )}
         </>
     );
 }

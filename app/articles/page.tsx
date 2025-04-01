@@ -17,6 +17,7 @@ export default function ArticleList() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState<Error | null>(null);
 
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     const handleSearch = useCallback(
         debounce((value: string) => {
             setPage(1);
@@ -66,7 +67,7 @@ export default function ArticleList() {
     const canLoadMore = articles.length < total;
 
     return (
-        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-10 bg-green-50 min-h-screen">
+        <div className="mx-auto  px-4 sm:px-6 lg:px-8 py-10 bg-green-50 min-h-screen">
             {/* Titre */}
             <h1 className="text-3xl font-bold text-green-700 text-center mb-8">
                 🌿 Tous les articles
@@ -102,7 +103,7 @@ export default function ArticleList() {
                             <img
                                 src={article.imageBase64}
                                 alt={article.title}
-                                className="w-full h-48 object-cover transition-transform duration-300 group-hover:scale-105"
+                                className="w-full h-48 object-contain transition-transform duration-300 group-hover:scale-105"
                             />
                         )}
                         <div className="p-5">
@@ -139,6 +140,7 @@ export default function ArticleList() {
                 {canLoadMore && !loading && (
                     <BouttonElement
                         onClick={handleVoirPlus}
+                        type={"secondary"}
                         className="px-6 py-3 rounded-full bg-green-600 hover:bg-green-700 text-white text-sm font-semibold shadow-sm transition"
                     >
                         Voir plus d’articles

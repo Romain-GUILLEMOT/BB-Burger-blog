@@ -5,31 +5,45 @@ import { PhoneIcon } from '@heroicons/react/24/solid'
 
 const people = [
     {
-        name: 'Romain GUILLEMOT',
-        role: 'DevOps & Infrastructure',
+        name: 'Romain Guillemot',
+        role: 'Responsable DevOps & Administrateur Infrastructure',
         imageUrl:
-            'https://media.licdn.com/dms/image/v2/D4E03AQERzlyaHplc7A/profile-displayphoto-shrink_400_400/B4EZOvxZa2HAAg-/0/1733820782879?e=1748476800&v=beta&t=f43vroICPgFvdMoW_bNgFG7VCBkWdvNrKoXD9EWi6BA',
+            'https://assets.romain-guillemot.dev/moianime-2.png',
         phone: 'tel:3395551076',
         linkedinUrl: 'https://www.linkedin.com/in/romain-guillemot/',
-        hoverColor: 'hover:ring-green-500',
+        hoverColor: 'hover:ring-orange-500 ',
+        imgcolor: 'border-orange-500 border-4'
+    },
+
+    {
+        name: 'Enzo Decatheaugrue',
+        role: 'Responsable développement',
+        imageUrl:
+            'https://media.licdn.com/dms/image/v2/D4E35AQEK-UfXdD3zSQ/profile-framedphoto-shrink_400_400/profile-framedphoto-shrink_400_400/0/1734956693572?e=1743760800&v=beta&t=M4T8xcHWYZ93hk94YpxcykwGvXkCBG8u__9mOENegp0',
+        phone: 'tel:33646614316',
+        linkedinUrl: 'https://www.linkedin.com/in/enzo-decatheaugrue/',
+        hoverColor: 'hover:ring-blue-500 ',
+        imgcolor: 'border-blue-500 border-4'
     },
     {
-        name: 'Johnatan Tembo',
+        name: 'Jonathan Tembo',
         role: 'Concepteur de contenu Green IT',
         imageUrl:
             'https://media.licdn.com/dms/image/v2/D4E35AQGMu5H3xbpdUQ/profile-framedphoto-shrink_400_400/profile-framedphoto-shrink_400_400/0/1733832427094?e=1743760800&v=beta&t=52RO9hpoHMdG5Rk9brj7mEtS3FV_PxdQ1s8SX1s8_bc',
         phone: 'tel:3312748324',
         linkedinUrl: 'https://www.linkedin.com/in/jonathan-tembo-88509825a/',
-        hoverColor: 'hover:ring-blue-500',
+        hoverColor: 'hover:ring-purple-500',
+        imgcolor: 'border-purple-500 border-2'
     },
     {
-        name: 'Enzo TucMuche',
-        role: 'Développeur',
+        name: 'Mohamed Mbow',
+        role: 'Ingénieur Base64',
         imageUrl:
-            'https://media.licdn.com/dms/image/v2/D4E35AQEK-UfXdD3zSQ/profile-framedphoto-shrink_400_400/profile-framedphoto-shrink_400_400/0/1734956693572?e=1743760800&v=beta&t=M4T8xcHWYZ93hk94YpxcykwGvXkCBG8u__9mOENegp0',
-        phone: 'tel:33646614316',
-        linkedinUrl: 'https://www.linkedin.com/in/enzo-decatheaugrue/',
-        hoverColor: 'hover:ring-orange-500',
+            'https://media.licdn.com/dms/image/v2/D4E35AQEegFQ6lVreFA/profile-framedphoto-shrink_200_200/profile-framedphoto-shrink_200_200/0/1733825668575?e=1744142400&v=beta&t=jcmlX_3rHsJn9z2tpSEmTMayDzYo_KZ1ybH5KKlCGeA',
+        phone: 'tel:33600000000',
+        linkedinUrl: 'https://www.linkedin.com/in/mohamed-mbow/',
+        hoverColor: 'hover:ring-cyan-500',
+        imgcolor: 'border-cyan-500 border-2'
     },
 ]
 
@@ -47,7 +61,7 @@ export default function Equipe() {
                 </div>
                 <ul
                     role="list"
-                    className="mx-auto mt-20 grid max-w-2xl grid-cols-1 gap-6 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-3 lg:gap-8"
+                    className="mx-auto mt-20 grid max-w-2xl grid-cols-1 gap-6 sm:grid-cols-2 lg:mx-0 lg:max-w-none lg:grid-cols-4 lg:gap-4"
                 >
                     {people.map((person) => (
                         <li
@@ -59,7 +73,7 @@ export default function Equipe() {
                                 src={person.imageUrl}
                                 width={224}
                                 height={224}
-                                className="mx-auto size-48 rounded-full md:size-56 object-cover"
+                                className={`mx-auto size-48 rounded-full md:size-56 object-cover ${person.imgcolor}`}
                             />
                             <h3 className="mt-6 text-base/7 font-semibold tracking-tight text-gray-900">{person.name}</h3>
                             <p className="text-sm/6 text-gray-600">{person.role}</p>

@@ -7,6 +7,7 @@ import React, { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import ky from "ky";
+import createNotification from "@/components/elements/Notification";
 
 export default function ArticleDetailPage() {
     const { id } = useParams();
@@ -69,7 +70,7 @@ export default function ArticleDetailPage() {
 
     const handleLike = async () => {
         if (!session?.user?.id) {
-            alert("Connecte-toi pour liker 💚");
+            createNotification({message: "Connecte-toi pour liker !", type: "warning"});
             return;
         }
 
@@ -80,11 +81,11 @@ export default function ArticleDetailPage() {
                 setHasLiked(!hasLiked);
                 setLikes(result.likes);
             } else {
-                alert(result.message || "Erreur");
+                createNotification({message: result.message || "Erreur", type: "error"});
             }
         } catch (err) {
             console.error(err);
-            alert("Erreur lors du like");
+            createNotification({message: "Erreur lors du like", type: "error"});
         }
     };
 
@@ -99,10 +100,10 @@ export default function ArticleDetailPage() {
             setCommentContent("");
             setParentId(null);
             mutate();
-            alert("Commentaire publié 💬");
+            createNotification({message: "Commentaire publié 💬", type: "success"});
         } catch (err: any) {
             const msg = await err.response?.json();
-            alert(msg?.message || "Erreur lors de l'envoi");
+            createNotification({message: msg?.message || "Erreur lors de l'envoi", type: "error"});
         }
     };
 
@@ -128,8 +129,8 @@ export default function ArticleDetailPage() {
     }
 
     return (
-        <main className="px-4 sm:px-6 md:px-8 lg:px-10 py-8 max-w-4xl mx-auto bg-green-50 min-h-screen rounded-xl">
-            <article className="mb-16">
+        <main className="px-4 sm:px-6 md:px-8 lg:px-10 py-8  mx-auto bg-green-50 min-h-screen rounded-xl">
+            <article className="mb-2">
                 <h1 className="text-4xl font-extrabold text-green-700 mb-2">{data.title}</h1>
                 <p className="text-green-500 text-sm italic mb-3">
                     Publié le {new Date(data.publishedAt).toLocaleDateString()}
@@ -150,7 +151,7 @@ export default function ArticleDetailPage() {
             </article>
 
             {/* LIKE BUTTON MODERNE */}
-            <div className="mb-10 flex justify-start items-center gap-4">
+            <div className="mb-10 flex justify-end items-center gap-4">
                 <button
                     onClick={handleLike}
                     className={`flex items-center gap-2 px-4 py-2 rounded-full transition-all duration-200 font-semibold text-sm shadow-sm border ${
@@ -169,9 +170,7 @@ export default function ArticleDetailPage() {
                     {likes}
                 </button>
                 <style jsx>{`
-          .animate-like {
-            animation: pop 0.3s ease-in-out;
-          }
+        
           @keyframes pop {
             0% {
               transform: scale(1);
