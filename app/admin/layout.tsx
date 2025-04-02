@@ -8,21 +8,6 @@ import Link from "next/link";
 import {usePathname, useRouter} from "next/navigation";
 import {useSession} from "next-auth/react";
 
-const geistSans = Geist({
-    variable: "--font-geist-sans",
-    subsets: ["latin"],
-});
-
-const geistMono = Geist_Mono({
-    variable: "--font-geist-mono",
-    subsets: ["latin"],
-});
-
-const TABS = {
-    users: "Utilisateurs",
-    articles: "Articles",
-    stats: "Statistiques",
-};
 
 export default function RootLayout({
                                        children,
