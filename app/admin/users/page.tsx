@@ -86,7 +86,7 @@ export default function AdminUsersPage() {
                 <tbody>
                 {users.map((user) => (
                     <tr key={user.id} className="border-b">
-                        <td className="px-4 py-2">{user.username}</td> {/* Affichage du nom d'utilisateur */}
+                        <td className="px-4 py-2">{user.name}</td> {/* Affichage du nom d'utilisateur */}
                         <td className="px-4 py-2">{user.email}</td>
                         <td className="px-4 py-2">
                             <select
