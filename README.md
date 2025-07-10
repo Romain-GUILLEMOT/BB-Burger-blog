@@ -1,4 +1,4 @@
-# BB Burger Blog 🏋️‍♂️🍔
+# BB Burger Blog 🍔
 
 Welcome to **BB Burger Blog**, a fitness and nutrition blog project built with **Next.js** and **Node.js 20**.
 
