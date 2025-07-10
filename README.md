@@ -1,14 +1,15 @@
-# BB Burger Blog 🍔
+# BB Burger Blog
 
 Welcome to **BB Burger Blog**, a fitness and nutrition blog project built with **Next.js** and **Node.js 20**.
 
-## 🚀 Technologies Used
+## Technologies Used
 
 - **Next.js** - Modern React framework
 - **Node.js 20** - Server-side JavaScript runtime
+- **Bun** - Fast JavaScript runtime
 - **Turbopack** - Accelerated development
 
-## 📦 Installation and Setup
+## Installation and Setup
 
 1. **Clone the project**
    ```sh
@@ -18,53 +19,41 @@ Welcome to **BB Burger Blog**, a fitness and nutrition blog project built with *
 
 2. **Install dependencies**
    ```sh
-   npm install
+   bun install
    ```
 
 3. **Start development mode**
    ```sh
-   npm run dev
+   bun run dev
    ```
    > 🌍 The project will be accessible at `http://127.0.0.1:9000`
 
 4. **Build the project**
    ```sh
-   npm run build
+   bun run build
    ```
 
 5. **Run in production mode**
    ```sh
-   npm run start
+   bun run start
    ```
 
 6. **Check for linting issues**
    ```sh
-   npm run lint
+   bun run lint
    ```
 
-## 📜 Available Scripts
-
-The project includes the following scripts in `package.json`:
-```json
-"scripts": {
-  "dev": "next dev --turbopack -p 9000 -H 127.0.0.1",
-  "build": "next build",
-  "start": "next start",
-  "lint": "next lint"
-}
-```
-
-## 🎯 Project Goal
+##  Project Goal
 
 **BB Burger Fitness** is a dynamic gym that combines performance and well-being. This project aims to provide an interactive blog for the BB Burger Fitness community, where members can find tips on training, recovery, and nutrition, as well as stay updated on the gym’s latest news.
 
-## 🤝 Contributions
+##  Contributions
 
 Contributions are welcome! Open an issue or a pull request to suggest improvements.
 
-## 📝 License
+##  License
 
 This project is licensed under the MIT License. Feel free to use it.
 
----
-🚀 **Let's get fit & code!** 💪🍔
+##  Contact
+For any questions or suggestions, please contact the project maintainer at [contact@romain-guillemot.dev](mailto:contact@romain-guillemot.dev) or on [romain-guillemot.dev](https://romain-guillemot.dev).
